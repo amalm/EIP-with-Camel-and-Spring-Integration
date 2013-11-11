@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans:beans xmlns="http://www.springframework.org/schema/integration"
+	xmlns:beans="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:int-file="http://www.springframework.org/schema/integration/file"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+	http://www.springframework.org/schema/integration/file
+    http://www.springframework.org/schema/integration/file/spring-integration-file.xsd">
+
+	<int-file:inbound-channel-adapter id="fileChannelAdapter"
+		directory="file:src/test/resources" channel="csvDeliveryNotesChannel">
+		<poller fixed-rate="10000"></poller>
+	</int-file:inbound-channel-adapter>
+
+	<channel id="csvDeliveryNotesChannel" />
+
+	<chain input-channel="csvDeliveryNotesChannel" output-channel="deliveryNotesChannel">
+		<splitter>
+			<beans:bean class="eis.domain.si.CvsSplitter"></beans:bean>
+		</splitter>
+	</chain>
+<!-- 	<transformer id="deliveryNotesTransformer" input-channel="csvDeliveryNotesChannel" -->
+<!-- 		ref="csvTransformer" output-channel="deliveryNotesChannel" /> -->
+<!-- 	<beans:bean id="csvTransformer" class="eis.domain.si.CsvTransformer" /> -->
+	<channel id="deliveryNotesChannel" />
+
+	<service-activator input-channel="deliveryNotesChannel"
+		ref="stock" method="addItem" />
+
+	<beans:bean id="stock" class="eis.domain.entities.Stock" />
+
+</beans:beans>
