@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema targetNamespace="http://eip.parts"
+    elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema"
+    xmlns:tns="http://eip.parts">
+
+    <complexType name="OrderType">
+        <sequence>
+            <sequence>
+                <element name="item" type="tns:ItemType"
+                    maxOccurs="unbounded" minOccurs="0">
+                </element>
+            </sequence>
+        </sequence>
+    </complexType>
+    <complexType name="ItemType">
+        <attribute name="number" type="string" use="required"/>
+        <attribute name="quantity" type="int" use="required"/>
+    </complexType>
+    
+
+    <element name="OrderRequest">
+        <complexType>
+            <sequence>
+                <element name="oder" type="tns:OrderType"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="OrderResponse">
+        <complexType>
+            <sequence>
+                <element name="orderNumberUuid" type="string" />
+            </sequence>
+        </complexType>
+    </element>
+
+</schema>

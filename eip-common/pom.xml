@@ -6,5 +6,5 @@
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>eip-common</artifactId>
-  <name>Enterprise Integration Camel/Spring Integeration Common Project</name>
+  <name>Enterprise Integration Camel/Spring Integeration Common Module</name>
 </project>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<wsdl:definitions xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:sch="http://eip.parts" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:tns="http://eip.parts" targetNamespace="http://eip.parts">
+  <wsdl:types>
+    <schema xmlns="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified" targetNamespace="http://eip.parts">
+
+    <complexType name="OrderType">
+        <sequence>
+            <sequence>
+                <element maxOccurs="unbounded" minOccurs="0" name="item" type="tns:ItemType">
+                </element>
+            </sequence>
+        </sequence>
+    </complexType>
+    <complexType name="ItemType">
+        <attribute name="number" type="string" use="required"/>
+        <attribute name="quantity" type="int" use="required"/>
+    </complexType>
+    
+
+    <element name="OrderRequest">
+        <complexType>
+            <sequence>
+                <element name="oder" type="tns:OrderType"/>
+            </sequence>
+        </complexType>
+    </element>
+
+    <element name="OrderResponse">
+        <complexType>
+            <sequence>
+                <element name="orderNumberUuid" type="string"/>
+            </sequence>
+        </complexType>
+    </element>
+
+</schema>
+  </wsdl:types>
+  <wsdl:message name="OrderResponse">
+    <wsdl:part element="tns:OrderResponse" name="OrderResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="OrderRequest">
+    <wsdl:part element="tns:OrderRequest" name="OrderRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="PartsOrder">
+    <wsdl:operation name="Order">
+      <wsdl:input message="tns:OrderRequest" name="OrderRequest">
+    </wsdl:input>
+      <wsdl:output message="tns:OrderResponse" name="OrderResponse">
+    </wsdl:output>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="PartsOrderSoap11" type="tns:PartsOrder">
+    <soap:binding style="document" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="Order">
+      <soap:operation soapAction=""/>
+      <wsdl:input name="OrderRequest">
+        <soap:body use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="OrderResponse">
+        <soap:body use="literal"/>
+      </wsdl:output>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="PartsOrderService">
+    <wsdl:port binding="tns:PartsOrderSoap11" name="PartsOrderSoap11">
+      <soap:address location="http://localhost:8080/"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>

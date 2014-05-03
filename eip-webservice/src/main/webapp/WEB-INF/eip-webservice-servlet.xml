@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+    xmlns:sws="http://www.springframework.org/schema/web-services"
+    xsi:schemaLocation="
+    http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+    http://www.springframework.org/schema/web-services http://www.springframework.org/schema/web-services/web-services.xsd">
+
+    <!-- Marshaller for JAXB mapping -->
+    <bean id="marshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <property name="contextPath" value="parts.eip" />
+    </bean>
+
+    <sws:annotation-driven/>
+    <!-- Publish the WSDL - generated from XSD -->
+    <sws:dynamic-wsdl id="partsorder" portTypeName="PartsOrder"
+        locationUri="http://localhost:8080/" targetNamespace="http://eip.parts">
+        <sws:xsd location="classpath:/xsd/partsorder.xsd" />
+    </sws:dynamic-wsdl>
+
+    <bean class="eip.webservice.PartsEndpoint" />
+</beans>

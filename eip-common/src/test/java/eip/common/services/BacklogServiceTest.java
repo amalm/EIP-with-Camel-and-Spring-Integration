@@ -1,6 +1,8 @@
 package eip.common.services;
 
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.testng.Assert.assertEquals;
 
 import java.io.FileNotFoundException;
 import java.util.Arrays;
@@ -20,19 +22,29 @@ public class BacklogServiceTest {
 	private BacklogService target;
 	@Mock
 	private BacklogItemRepository repository;
+	private List<BacklogItem> backlogItems;
+	
 	@BeforeMethod
 	public void beforeMathod()
 	{
 		MockitoAnnotations.initMocks(this);
 		target = new BacklogService(repository);
+		backlogItems = Arrays.asList(new BacklogItem(new Item(ItemType.DRIVE, "name1", "number1")),
+				new BacklogItem(new Item(ItemType.DRIVE, "name2", "number2")));
 	}
 	
 	@Test
-	public void orderBacklogItems() throws FileNotFoundException
+	public void saveBacklogItems() throws FileNotFoundException
 	{
-		List<BacklogItem> backlogItems = Arrays.asList(new BacklogItem(new Item(ItemType.DRIVE, "name1", "number1")),
-												new BacklogItem(new Item(ItemType.DRIVE, "name2", "number2")));
-		target.orderBacklogItems(new Backlog(backlogItems));
+		target.saveBacklogItems(new Backlog(backlogItems));
 		verify(repository).save(backlogItems);
+	}
+	
+	@Test
+	public void getBacklogItems()
+	{
+		when(repository.findAll()).thenReturn(backlogItems);
+		assertEquals(target.getBacklogItems().size(), backlogItems.size());
+		
 	}
 }

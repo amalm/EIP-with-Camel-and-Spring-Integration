@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>eip-camel</artifactId>
-	<name>Enterprise Integration Camel Project</name>
+	<name>Enterprise Integration Camel Module</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>

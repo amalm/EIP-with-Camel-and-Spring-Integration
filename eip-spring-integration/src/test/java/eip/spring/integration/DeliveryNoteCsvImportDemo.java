@@ -6,6 +6,8 @@ import static org.testng.Assert.fail;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.SmartContextLoader;
+import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.annotations.Test;
 
@@ -18,8 +20,8 @@ import eip.common.services.StockService;
  * @author Anders Malmborg
  *
  */
-@ContextConfiguration(locations={"classpath:META-INF/deliverynote.spring.xml", 
-								 "classpath:META-INF/jpa.spring.xml",
+@ContextConfiguration(loader=SmartContextLoader.class,
+					locations={"classpath:META-INF/deliverynote.spring.xml", 
 								 "classpath:META-INF/services.spring.xml"})
 public class DeliveryNoteCsvImportDemo extends AbstractTransactionalTestNGSpringContextTests {
 	
