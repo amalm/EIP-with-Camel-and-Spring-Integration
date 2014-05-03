@@ -1,6 +1,7 @@
-package eip.spring.integration;
+package eip.camel;
 
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.testng.Assert.assertTrue;
 
@@ -10,42 +11,36 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.camel.CamelContext;
+import org.apache.camel.EndpointInject;
+import org.apache.camel.Exchange;
+import org.apache.camel.component.mock.MockEndpoint;
+import org.apache.camel.testng.AbstractCamelTestNGSpringContextTests;
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
+import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import eip.common.entities.StockItem;
+import eip.common.services.StockService;
 import eip.common.testutil.CountDownLatchAnswer;
 
-/**
- * Integration testing delivery note reception by mocking the ItemWriter.
- * 
- * @author Anders Malmborg
- * 
- */
 @ContextConfiguration(locations = {
-		"classpath:META-INF/deliverynote.spring.xml",
-		"classpath:deliverynote.spring.test.xml" })
-public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests {
-
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(DeliveryNoteCsvImportTest.class);
+		"classpath:META-INF/deliverynote.camel.spring.xml",
+		"classpath:deliverynote.camel.spring.test.xml" })
+public class DeliveryNoteCsvImportTest extends AbstractCamelTestNGSpringContextTests {
+	@Autowired
+	private StockService stock;
 	private Path src, destDir, destFile;
 	private FileSystem fileSystem;
-
-	@Autowired
-	private ItemWriter<StockItem> itemWriter;
-
+	
 	@BeforeMethod
 	public void beforeMethod() throws IOException
 	{
@@ -56,25 +51,22 @@ public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests 
 		if (!Files.isDirectory(destDir))
 			Files.createDirectory(destDir);
 	}
-	
 	@AfterClass(alwaysRun=true)
 	public void afterMethod() throws IOException
 	{
 		if (Files.exists(destFile))
 			Files.delete(destFile);		
 	}
-	
+
 	@Test
 	public void check() throws Exception {
 		// To train the objects before the processing starts, copy the file
 		// first after training
 		destFile = Files.copy(src, destFile, StandardCopyOption.REPLACE_EXISTING);
-		LOGGER.info("Copied {} to {}", src.toString(), destFile.toString());
 		CountDownLatch latch = new CountDownLatch(2);
-		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(itemWriter)
-				.write(Mockito.anyListOf(StockItem.class));
+		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(stock)
+				.addStockItem(Mockito.any(StockItem.class));
 		assertTrue(latch.await(3, TimeUnit.SECONDS), "latch interupted");
-		verify(itemWriter, Mockito.times(2)).write(
-				Mockito.anyListOf(StockItem.class));
+		verify(stock, times(2)).addStockItem(Mockito.any(StockItem.class));
 	}
 }

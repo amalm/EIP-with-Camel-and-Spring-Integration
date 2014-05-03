@@ -6,9 +6,9 @@
 	<version>0.0.1-SNAPSHOT</version>
 	<name>Enterprise Integration Camel/Spring Integeration Parent Project</name>
 	<modules>
-	<module>eip-spring-integration</module>
-	<module>eip-common</module>
-	<module>eip-camel</module>
+		<module>eip-spring-integration</module>
+		<module>eip-common</module>
+		<module>eip-camel</module>
 	</modules>
 	<properties>
 		<slf4j.version>1.7.5</slf4j.version>
@@ -17,7 +17,7 @@
 		<spring.version>3.2.4.RELEASE</spring.version>
 		<spring.integration.version>2.2.5.RELEASE</spring.integration.version>
 		<hibernate.version>4.2.7.Final</hibernate.version>
-		<compileSource>1.6</compileSource>
+		<compileSource>1.7</compileSource>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
 
@@ -177,7 +177,26 @@
 				<artifactId>camel-spring</artifactId>
 				<version>${camel.version}</version>
 			</dependency>
-
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-csv</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-jpa</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-test</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
+			<dependency>
+				<groupId>org.apache.camel</groupId>
+				<artifactId>camel-testng</artifactId>
+				<version>${camel.version}</version>
+			</dependency>
 			<dependency>
 				<groupId>org.hibernate</groupId>
 				<artifactId>hibernate-core</artifactId>

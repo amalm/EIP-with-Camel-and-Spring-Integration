@@ -9,8 +9,13 @@
 	http://www.springframework.org/schema/integration/file
     http://www.springframework.org/schema/integration/file/spring-integration-file.xsd">
 
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:eip.spring.integration.properties" />
+	</bean>
+
 	<int-file:inbound-channel-adapter id="orderChannelAdapter"
-		directory="file:../eip-common/src/main/resources/orders" channel="csvOrderChannel">
+		directory="${ordersInDir}" channel="csvOrderChannel">
 		<int:poller fixed-rate="1000"/>
 	</int-file:inbound-channel-adapter>
 
@@ -30,20 +35,6 @@
 		<int:service-activator ref="backlogService"/>
 	</int:chain>
 
-	
-	<bean id="orderService" class="eip.common.services.OrderService">
-		<constructor-arg name="stockService">
-			<bean class="eip.common.services.StockService">
-				<constructor-arg ref="stockItemRepository"></constructor-arg>
-			</bean>
-		</constructor-arg>
-		<constructor-arg name="customerRepository" ref="customerRepository"/>
-	</bean>
-	
-	<bean id="backlogService" class="eip.common.services.BacklogService">
-		<constructor-arg name="repository" ref="backlogItemRepository"/>
-	</bean>
-	
 	<bean id="orderCsvReader" class="eip.spring.integration.OrderFlatFileItemReaderDelegate"
 		scope="prototype">
 		<constructor-arg>

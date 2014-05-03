@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xmlns:int = "http://www.springframework.org/schema/integration"
+	xmlns:int="http://www.springframework.org/schema/integration"
 	xmlns:int-file="http://www.springframework.org/schema/integration/file"
 	xsi:schemaLocation="
 	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
@@ -9,15 +9,19 @@
 	http://www.springframework.org/schema/integration/file
     http://www.springframework.org/schema/integration/file/spring-integration-file.xsd">
 
+	<bean id="propertyConfigurer"
+		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
+		<property name="location" value="classpath:eip.spring.integration.properties" />
+	</bean>
 	<int-file:inbound-channel-adapter id="deliveryNotesChannelAdapter"
-		directory="file:../eip-common/src/main/resources/deliverynotes" channel="csvDeliveryNotesChannel">
-		<int:poller fixed-rate="1000"/>
+		directory="${deliveryNotesInDir}" channel="csvDeliveryNotesChannel">
+		<int:poller fixed-rate="1000" />
 	</int-file:inbound-channel-adapter>
 
 	<int:channel id="csvDeliveryNotesChannel" />
-	
-	<int:service-activator input-channel="csvDeliveryNotesChannel" ref="deliveryNoteCsvImport" method="importCsv"/>
-	
+	<int:service-activator input-channel="csvDeliveryNotesChannel"
+		ref="deliveryNoteCsvImport" method="importCsv" />
+
 	<bean id="deliveryNoteCsvReader" class="org.springframework.batch.item.file.FlatFileItemReader"
 		scope="prototype">
 		<property name="encoding" value="UTF-8" />
@@ -36,18 +40,16 @@
 			</bean>
 		</property>
 	</bean>
-	
+
 	<bean id="stockWriterAdapter"
 		class="org.springframework.batch.item.adapter.ItemWriterAdapter">
-		<property name="targetObject" ref="deliverynote.stockService" />
+		<property name="targetObject" ref="stockService" />
 		<property name="targetMethod" value="addStockItem" />
 	</bean>
 
-	<bean id="deliverynote.stockService" class="eip.common.services.StockService">
-		<constructor-arg ref="stockItemRepository"/>
-	</bean>
 
-	<bean id="deliveryNoteCsvImport" class="eip.spring.integration.DeliveryNoteCsvImport">
+	<bean id="deliveryNoteCsvImport" class="eip.spring.integration.DeliveryNoteCsvImport"
+		scope="prototype">
 		<constructor-arg name="reader" ref="deliveryNoteCsvReader" />
 		<constructor-arg name="writer" ref="stockWriterAdapter" />
 	</bean>

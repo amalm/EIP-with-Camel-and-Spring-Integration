@@ -1,4 +1,4 @@
-package eip.spring.integration;
+package eip.camel;
 
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
@@ -14,9 +14,6 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 import org.mockito.Mockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-import org.springframework.batch.item.ItemWriter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
@@ -24,57 +21,54 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import eip.common.entities.StockItem;
+import eip.common.entities.Order;
+import eip.common.services.OrderService;
 import eip.common.testutil.CountDownLatchAnswer;
 
 /**
- * Integration testing delivery note reception by mocking the ItemWriter.
+ * Integration testing order reception by mocking the services.
  * 
  * @author Anders Malmborg
  * 
  */
-@ContextConfiguration(locations = {
-		"classpath:META-INF/deliverynote.spring.xml",
-		"classpath:deliverynote.spring.test.xml" })
-public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests {
-
-	private static final Logger LOGGER = LoggerFactory
-			.getLogger(DeliveryNoteCsvImportTest.class);
+@ContextConfiguration(locations={"classpath:META-INF/order.camel.spring.xml",
+								 "classpath:order.camel.spring.test.xml"})
+public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
+	
 	private Path src, destDir, destFile;
 	private FileSystem fileSystem;
 
 	@Autowired
-	private ItemWriter<StockItem> itemWriter;
-
+	private OrderService orderService;
+	
 	@BeforeMethod
 	public void beforeMethod() throws IOException
 	{
 		fileSystem = FileSystems.getDefault();
-		src = fileSystem.getPath("../eip-common/src/main/resources/deliverynotes/deliverynote1.csv");
-		destDir = fileSystem.getPath("target", "deliverynotes");
+		src = fileSystem.getPath("../eip-common/src/main/resources/orders/order1.csv");
+		destDir = fileSystem.getPath("target", "orders");
 		destFile = destDir.resolve(src.getFileName());
 		if (!Files.isDirectory(destDir))
 			Files.createDirectory(destDir);
+		
 	}
-	
 	@AfterClass(alwaysRun=true)
 	public void afterMethod() throws IOException
 	{
 		if (Files.exists(destFile))
 			Files.delete(destFile);		
 	}
-	
+
 	@Test
-	public void check() throws Exception {
+	public void check() throws InterruptedException, IOException
+	{
 		// To train the objects before the processing starts, copy the file
 		// first after training
 		destFile = Files.copy(src, destFile, StandardCopyOption.REPLACE_EXISTING);
-		LOGGER.info("Copied {} to {}", src.toString(), destFile.toString());
 		CountDownLatch latch = new CountDownLatch(2);
-		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(itemWriter)
-				.write(Mockito.anyListOf(StockItem.class));
+		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(orderService)
+				.handleOrder(Mockito.any(Order.class));
 		assertTrue(latch.await(3, TimeUnit.SECONDS), "latch interupted");
-		verify(itemWriter, Mockito.times(2)).write(
-				Mockito.anyListOf(StockItem.class));
+		verify(orderService, Mockito.times(2)).handleOrder(Mockito.any(Order.class));
 	}
 }
