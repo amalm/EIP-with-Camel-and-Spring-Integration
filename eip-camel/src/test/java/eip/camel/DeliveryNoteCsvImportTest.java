@@ -1,4 +1,4 @@
-package eip.spring.integration;
+package eip.camel;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;

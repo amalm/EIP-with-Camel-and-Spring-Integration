@@ -27,12 +27,15 @@ public class OrderCsvImportTest extends AbstractTransactionalTestNGSpringContext
 	@Test
 	public void check() throws InterruptedException, FileNotFoundException
 	{
+	    // Given an order is processed
 		for (int i = 0; i < 3; i++)
 		{
 			Thread.sleep(200);
+			//Then an item is backlogged as it is not on stock
 			BacklogItem backlogItem = backlogItemRepository.findByItemNumber("098876");
 			if (backlogItem != null)
 			{
+			    //And the customer has ordered 2 items
 				Customer customer = customerRepository.findByName(CUSTOMER_NAME);
 				assertEquals(customer.getOrders().size(), 1);
 				assertEquals(customer.getOrders().iterator().next().getOrderItems().size(), 2);

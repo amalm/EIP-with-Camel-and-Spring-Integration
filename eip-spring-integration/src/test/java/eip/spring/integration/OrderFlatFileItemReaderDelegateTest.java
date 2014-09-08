@@ -52,9 +52,13 @@ public class OrderFlatFileItemReaderDelegateTest {
 	@Test
 	public void read() throws UnexpectedInputException, ParseException, NonTransientResourceException, Exception
 	{
+	    // Given an order file
 		target.setResource(new ClassPathResource("orders/order1.csv"));
 		target.open(new ExecutionContext());
+		
+		// When the first record is read
 		Order order = target.read();
+		// Then the record is parsed into an Order bean
 		assertEquals(order.getCustomerName(), "Bike support");
 		assertEquals(order.getNumber(), "1");
 		assertEquals(order.getOrderItems().size(), 2);
