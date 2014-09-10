@@ -23,7 +23,7 @@ public class DeliveryNoteCsvImportDemo extends AbstractTransactionalTestNGSpring
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			Integer itemsOnStock = stock.getItemsOnStock(STOCK_NR);
 			if (itemsOnStock > 0)
 			{

@@ -11,20 +11,13 @@ import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-import org.apache.camel.CamelContext;
-import org.apache.camel.EndpointInject;
-import org.apache.camel.Exchange;
-import org.apache.camel.component.mock.MockEndpoint;
-import org.apache.camel.testng.AbstractCamelTestNGSpringContextTests;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.testng.Assert;
-import org.testng.annotations.AfterClass;
+import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -35,7 +28,7 @@ import eip.common.testutil.CountDownLatchAnswer;
 @ContextConfiguration(locations = {
 		"classpath:META-INF/deliverynote.camel.spring.xml",
 		"classpath:deliverynote.camel.spring.test.xml" })
-public class DeliveryNoteCsvImportTest extends AbstractCamelTestNGSpringContextTests {
+public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests {
 	@Autowired
 	private StockService stock;
 	private Path src, destDir, destFile;
@@ -50,12 +43,6 @@ public class DeliveryNoteCsvImportTest extends AbstractCamelTestNGSpringContextT
 		destFile = destDir.resolve(src.getFileName());
 		if (!Files.isDirectory(destDir))
 			Files.createDirectory(destDir);
-	}
-	@AfterClass(alwaysRun=true)
-	public void afterMethod() throws IOException
-	{
-		if (Files.exists(destFile))
-			Files.delete(destFile);		
 	}
 
 	@Test

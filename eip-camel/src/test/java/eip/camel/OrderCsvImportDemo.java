@@ -8,7 +8,6 @@ import java.io.FileNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
-import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.testng.annotations.Test;
 
 import eip.common.entities.BacklogItem;
@@ -32,7 +31,7 @@ public class OrderCsvImportDemo extends AbstractTransactionalTestNGSpringContext
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			BacklogItem backlogItem = backlogItemRepository.findByItemNumber("098876");
 			if (backlogItem != null)
 			{

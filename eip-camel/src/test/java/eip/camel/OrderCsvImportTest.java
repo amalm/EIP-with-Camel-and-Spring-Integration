@@ -17,7 +17,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -51,12 +50,6 @@ public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
 		if (!Files.isDirectory(destDir))
 			Files.createDirectory(destDir);
 		
-	}
-	@AfterClass(alwaysRun=true)
-	public void afterMethod() throws IOException
-	{
-		if (Files.exists(destFile))
-			Files.delete(destFile);		
 	}
 
 	@Test
