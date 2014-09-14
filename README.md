@@ -15,6 +15,7 @@ A delivery note is simple flat CSV file:
 	
 	FRAME; Road bike frame 60 cm;1935182366;103.95;2
 	DRIVE; Shimano HG LX;1935182439;31.85;6
+=======
  
 ### Spring Integration
 Spring Integration does not support CSV files so we use Spring Batch for this.
@@ -24,13 +25,11 @@ The delivery note records are read one at a time, converted into a StockItem to 
 Camel provides the CSV component. Together with the Split component a record at a time is converted to a StockItem (eip.camel.CsvToStockItemProcessor) and sent to the StockService.
 
 ## Import of orders
-An order consists of a header(record type `ORDER`) and and items(record type `ITEM`)
+An order consists of a header(record type 'ORDER') and and items(record type 'ITEM')  
 
 	ORDER;Bike support;1
 	ITEM;FRAME;Road bike frame 60 cm;1935182366
 	ITEM;DRIVE;Shimano HG LX;1935182439
-
-	
 
 All order items until next order block begins are read and mapped to an Order object.
 The Order object is sent to the eip.common.services.OrderService.handleOrder(Order) method. 
