@@ -22,6 +22,7 @@ public class BacklogItem {
 	public BacklogItem(Item item) {
 		this.item = item;
 	}
+	
 	public Item getItem() {
 		return item;
 	}

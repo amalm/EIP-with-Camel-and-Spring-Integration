@@ -25,4 +25,22 @@
 	</camel:camelContext>
 
 	<bean id="csvToStockItemProcessor" class="eip.camel.CsvToStockItemProcessor" />
+
+	<camel:camelContext id="orderImport">
+		<camel:route>
+			<camel:from
+				uri="{{ordersInDir}}" />
+			<camel:split streaming="true">
+				<camel:tokenize token="ORDER" xml="false" />
+				<camel:unmarshal>
+					<camel:csv delimiter=";" />
+				</camel:unmarshal>
+				<camel:process ref="csvToOrderProcessor"/>
+				<camel:bean ref="orderService" />
+				<camel:bean ref="backlogService"/>
+			</camel:split>
+		</camel:route>
+	</camel:camelContext>
+
+	<bean id="csvToOrderProcessor" class="eip.camel.CsvToOrderProcessor"/>
 </beans>

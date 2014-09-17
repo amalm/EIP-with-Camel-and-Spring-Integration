@@ -9,8 +9,8 @@
 		<property name="location" value="classpath:eip.spring.integration.test.properties" />
 	</bean>
 
-	<bean id="stockWriterAdapter" factory-method="mock" class="org.mockito.Mockito">
-		<constructor-arg value="org.springframework.batch.item.ItemWriter"/>
+	<bean id="stockService" factory-method="mock" class="org.mockito.Mockito">
+		<constructor-arg value="eip.common.services.StockService"/>
 	</bean>
 
 </beans>

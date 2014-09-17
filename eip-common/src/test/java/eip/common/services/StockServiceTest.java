@@ -16,7 +16,7 @@ import eip.common.entities.Item;
 import eip.common.entities.ItemType;
 import eip.common.entities.StockItem;
 import eip.common.repositories.StockItemRepository;
-import eip.common.services.StockService;
+import eip.common.services.StockServiceDb;
 
 public class StockServiceTest {
 	private StockService target;
@@ -29,7 +29,7 @@ public class StockServiceTest {
 	public void setUp()
 	{
 		MockitoAnnotations.initMocks(this);
-		target = new StockService(repository);
+		target = new StockServiceDb(repository);
 		itemNr = UUID.randomUUID().toString();
 		item = new StockItem(new Item(ItemType.DRIVE, "test", itemNr, Double.valueOf(0)), Integer.valueOf(1));
 	}

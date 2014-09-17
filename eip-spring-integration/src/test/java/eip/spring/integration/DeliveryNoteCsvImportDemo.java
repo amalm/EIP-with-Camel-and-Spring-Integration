@@ -6,8 +6,6 @@ import static org.testng.Assert.fail;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.context.SmartContextLoader;
-import org.springframework.test.context.support.AnnotationConfigContextLoader;
 import org.springframework.test.context.testng.AbstractTransactionalTestNGSpringContextTests;
 import org.testng.annotations.Test;
 
@@ -20,9 +18,10 @@ import eip.common.services.StockService;
  * @author Anders Malmborg
  *
  */
-@ContextConfiguration(loader=SmartContextLoader.class,
-					locations={"classpath:META-INF/deliverynote.spring.xml", 
-								 "classpath:META-INF/services.spring.xml"})
+@ContextConfiguration(locations={
+		"classpath:META-INF/springintegration.spring.xml", 
+		 "classpath:META-INF/jpa.spring.xml",
+		"classpath:META-INF/services.db.spring.xml"})
 public class DeliveryNoteCsvImportDemo extends AbstractTransactionalTestNGSpringContextTests {
 	
 	private static final String STOCK_NR = "1935182366";
@@ -34,7 +33,7 @@ public class DeliveryNoteCsvImportDemo extends AbstractTransactionalTestNGSpring
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			Integer itemsOnStock = stockService.getItemsOnStock(STOCK_NR);
 			if (itemsOnStock > 0)
 			{

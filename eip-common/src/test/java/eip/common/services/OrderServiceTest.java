@@ -23,20 +23,20 @@ import eip.common.entities.OrderItem;
 import eip.common.entities.StockItem;
 import eip.common.repositories.CustomerRepository;
 import eip.common.services.Backlog;
-import eip.common.services.OrderService;
-import eip.common.services.StockService;
+import eip.common.services.OrderServiceDb;
+import eip.common.services.StockServiceDb;
 
 public class OrderServiceTest {
 	private OrderService target;
 	@Mock
-	private StockService stockService;
+	private StockServiceDb stockService;
 	@Mock
 	private CustomerRepository customerRepository;
 	@BeforeMethod
 	public void beforeMethod()
 	{
 		MockitoAnnotations.initMocks(this);
-		target = new OrderService(stockService, customerRepository);
+		target = new OrderServiceDb(stockService, customerRepository);
 	}
 	
 	@Test(dataProvider="createOrder")

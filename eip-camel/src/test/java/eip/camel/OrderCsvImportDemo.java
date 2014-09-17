@@ -15,9 +15,9 @@ import eip.common.entities.Customer;
 import eip.common.repositories.BacklogItemRepository;
 import eip.common.repositories.CustomerRepository;
 
-@ContextConfiguration(locations={"classpath:META-INF/order.camel.spring.xml",
+@ContextConfiguration(locations={"classpath:META-INF/camel.spring.xml",
 								 "classpath:META-INF/jpa.spring.xml",
-								 "classpath:META-INF/services.spring.xml"})
+								 "classpath:META-INF/services.db.spring.xml"})
 public class OrderCsvImportDemo extends AbstractTransactionalTestNGSpringContextTests {
 	
 	private static final String CUSTOMER_NAME = "Bike support";

@@ -28,7 +28,7 @@ public class BacklogServiceTest {
 	public void beforeMathod()
 	{
 		MockitoAnnotations.initMocks(this);
-		target = new BacklogService(repository);
+		target = new BacklogServiceDb(repository);
 		backlogItems = Arrays.asList(new BacklogItem(new Item(ItemType.DRIVE, "name1", "number1")),
 				new BacklogItem(new Item(ItemType.DRIVE, "name2", "number2")));
 	}

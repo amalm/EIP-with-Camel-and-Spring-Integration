@@ -22,9 +22,10 @@ import eip.common.repositories.CustomerRepository;
  * @author Anders Malmborg
  *
  */
-@ContextConfiguration(locations={"classpath:META-INF/order.spring.xml",
-								 "classpath:META-INF/jpa.spring.xml",
-								 "classpath:META-INF/services.spring.xml"})
+@ContextConfiguration(locations={
+		"classpath:META-INF/springintegration.spring.xml", 
+		 "classpath:META-INF/jpa.spring.xml",
+		"classpath:META-INF/services.db.spring.xml"})
 public class OrderCsvImportDemo extends AbstractTransactionalTestNGSpringContextTests {
 	
 	private static final String CUSTOMER_NAME = "Bike support";
@@ -38,7 +39,7 @@ public class OrderCsvImportDemo extends AbstractTransactionalTestNGSpringContext
 	{
 		for (int i = 0; i < 3; i++)
 		{
-			Thread.sleep(300);
+			Thread.sleep(1000);
 			BacklogItem backlogItem = backlogItemRepository.findByItemNumber("098876");
 			if (backlogItem != null)
 			{

@@ -13,7 +13,46 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="classpath:eip.spring.integration.properties" />
 	</bean>
+	<int-file:inbound-channel-adapter id="deliveryNotesChannelAdapter"
+		directory="${deliveryNotesInDir}" channel="csvDeliveryNotesChannel">
+		<int:poller fixed-rate="1000" />
+	</int-file:inbound-channel-adapter>
 
+	<int:channel id="csvDeliveryNotesChannel" />
+	<int:service-activator input-channel="csvDeliveryNotesChannel"
+		ref="deliveryNoteCsvImport" method="importCsv" />
+
+	<bean id="deliveryNoteCsvReader" class="org.springframework.batch.item.file.FlatFileItemReader"
+		scope="prototype">
+		<property name="encoding" value="UTF-8" />
+		<property name="lineMapper">
+			<bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+				<property name="lineTokenizer">
+					<bean
+						class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+						<property name="delimiter" value=";" />
+						<property name="names" value="itemType,name,number,price,quantity" />
+					</bean>
+				</property>
+				<property name="fieldSetMapper">
+					<bean class="eip.spring.integration.StockItemFieldSetMapper" />
+				</property>
+			</bean>
+		</property>
+	</bean>
+
+	<bean id="stockWriterAdapter"
+		class="org.springframework.batch.item.adapter.ItemWriterAdapter">
+		<property name="targetObject" ref="stockService" />
+		<property name="targetMethod" value="addStockItem" />
+	</bean>
+
+
+	<bean id="deliveryNoteCsvImport" class="eip.spring.integration.DeliveryNoteCsvImport"
+		scope="prototype">
+		<constructor-arg name="reader" ref="deliveryNoteCsvReader" />
+		<constructor-arg name="writer" ref="stockWriterAdapter" />
+	</bean>
 	<int-file:inbound-channel-adapter id="orderChannelAdapter"
 		directory="${ordersInDir}" channel="csvOrderChannel">
 		<int:poller fixed-rate="1000"/>
@@ -32,7 +71,7 @@
 	<int:channel id="orderServiceChannel" />
 	<int:chain input-channel="orderServiceChannel">
 		<int:service-activator ref="orderService"  method="handleOrder"/>
-		<int:service-activator ref="backlogService"/>
+		<int:service-activator ref="backlogService" method="saveBacklogItems"/>
 	</int:chain>
 
 	<bean id="orderCsvReader" class="eip.spring.integration.OrderFlatFileItemReaderDelegate"
@@ -75,5 +114,4 @@
 			</bean>
 		</constructor-arg>
 	</bean>
-
 </beans>

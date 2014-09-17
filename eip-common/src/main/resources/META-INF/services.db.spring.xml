@@ -3,16 +3,16 @@
 	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd">
 
-	<bean id="stockService" class="eip.common.services.StockService">
+	<bean id="stockService" class="eip.common.services.StockServiceDb">
 		<constructor-arg ref="stockItemRepository"></constructor-arg>
 	</bean>
 
-	<bean id="orderService" class="eip.common.services.OrderService">
+	<bean id="orderService" class="eip.common.services.OrderServiceDb">
 		<constructor-arg name="stockService" ref="stockService"/>
 		<constructor-arg name="customerRepository" ref="customerRepository"/>
 	</bean>
 	
-	<bean id="backlogService" class="eip.common.services.BacklogService">
+	<bean id="backlogService" class="eip.common.services.BacklogServiceDb">
 		<constructor-arg name="repository" ref="backlogItemRepository"/>
 	</bean>
 

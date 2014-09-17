@@ -26,11 +26,12 @@ import eip.common.services.StockService;
 import eip.common.testutil.CountDownLatchAnswer;
 
 @ContextConfiguration(locations = {
-		"classpath:META-INF/deliverynote.camel.spring.xml",
+		"classpath:META-INF/services.memory.spring.xml",
+		"classpath:META-INF/camel.spring.xml",
 		"classpath:deliverynote.camel.spring.test.xml" })
 public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests {
 	@Autowired
-	private StockService stock;
+	private StockService stockService;
 	private Path src, destDir, destFile;
 	private FileSystem fileSystem;
 	
@@ -47,13 +48,11 @@ public class DeliveryNoteCsvImportTest extends AbstractTestNGSpringContextTests 
 
 	@Test
 	public void check() throws Exception {
-		// To train the objects before the processing starts, copy the file
-		// first after training
 		destFile = Files.copy(src, destFile, StandardCopyOption.REPLACE_EXISTING);
 		CountDownLatch latch = new CountDownLatch(2);
-		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(stock)
+		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(stockService)
 				.addStockItem(Mockito.any(StockItem.class));
 		assertTrue(latch.await(3, TimeUnit.SECONDS), "latch interupted");
-		verify(stock, times(2)).addStockItem(Mockito.any(StockItem.class));
+		verify(stockService, times(2)).addStockItem(Mockito.any(StockItem.class));
 	}
 }

@@ -8,10 +8,6 @@
 		class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">
 		<property name="location" value="classpath:eip.spring.integration.test.properties" />
 	</bean>
-
-	<bean id="orderService" factory-method="mock" class="org.mockito.Mockito">
-		<constructor-arg value="eip.common.services.OrderService"/>
-	</bean>
 	
 	<bean id="backlogService" factory-method="mock" class="org.mockito.Mockito">
 		<constructor-arg value="eip.common.services.BacklogService"/>

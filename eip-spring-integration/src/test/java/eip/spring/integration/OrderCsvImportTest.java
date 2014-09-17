@@ -21,8 +21,8 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import eip.common.entities.Order;
-import eip.common.services.OrderService;
+import eip.common.services.Backlog;
+import eip.common.services.BacklogService;
 import eip.common.testutil.CountDownLatchAnswer;
 
 /**
@@ -31,28 +31,30 @@ import eip.common.testutil.CountDownLatchAnswer;
  * @author Anders Malmborg
  * 
  */
-@ContextConfiguration(locations={"classpath:META-INF/order.spring.xml",
-								 "classpath:order.spring.test.xml"})
+@ContextConfiguration(locations = {
+		"classpath:META-INF/services.memory.spring.xml",
+		"classpath:META-INF/springintegration.spring.xml",
+		"classpath:order.spring.test.xml" })
 public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
-	
+
 	private Path src, destDir, destFile;
 	private FileSystem fileSystem;
 
 	@Autowired
-	private OrderService orderService;
-	
+	private BacklogService backlogService;
+
 	@BeforeMethod
-	public void beforeMethod() throws IOException
-	{
+	public void beforeMethod() throws IOException {
 		fileSystem = FileSystems.getDefault();
-		src = fileSystem.getPath("../eip-common/src/main/resources/orders/order1.csv");
+		src = fileSystem
+				.getPath("../eip-common/src/main/resources/orders/order1.csv");
 		destDir = fileSystem.getPath("target", "orders");
 		destFile = destDir.resolve(src.getFileName());
 		if (!Files.isDirectory(destDir))
 			Files.createDirectory(destDir);
-		
+
 	}
-	@AfterClass(alwaysRun=true)
+	@AfterClass(alwaysRun=false)
 	public void afterMethod() throws IOException
 	{
 		if (Files.exists(destFile))
@@ -60,15 +62,16 @@ public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
 	}
 
 	@Test
-	public void check() throws InterruptedException, IOException
-	{
+	public void check() throws InterruptedException, IOException {
 		// To train the objects before the processing starts, copy the file
 		// first after training
-		destFile = Files.copy(src, destFile, StandardCopyOption.REPLACE_EXISTING);
+		destFile = Files.copy(src, destFile,
+				StandardCopyOption.REPLACE_EXISTING);
 		CountDownLatch latch = new CountDownLatch(2);
-		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(orderService)
-				.handleOrder(Mockito.any(Order.class));
+		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(
+				backlogService).saveBacklogItems(Mockito.any(Backlog.class));
 		assertTrue(latch.await(3, TimeUnit.SECONDS), "latch interupted");
-		verify(orderService, Mockito.times(2)).handleOrder(Mockito.any(Order.class));
+		verify(backlogService, Mockito.times(2)).saveBacklogItems(
+				Mockito.any(Backlog.class));
 	}
 }

@@ -20,8 +20,8 @@ import org.springframework.test.context.testng.AbstractTestNGSpringContextTests;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import eip.common.entities.Order;
-import eip.common.services.OrderService;
+import eip.common.services.Backlog;
+import eip.common.services.BacklogService;
 import eip.common.testutil.CountDownLatchAnswer;
 
 /**
@@ -30,15 +30,17 @@ import eip.common.testutil.CountDownLatchAnswer;
  * @author Anders Malmborg
  * 
  */
-@ContextConfiguration(locations={"classpath:META-INF/order.camel.spring.xml",
-								 "classpath:order.camel.spring.test.xml"})
+@ContextConfiguration(locations={
+		"classpath:META-INF/services.memory.spring.xml",
+		"classpath:META-INF/camel.spring.xml",
+		"classpath:order.camel.spring.test.xml"})
 public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
 	
 	private Path src, destDir, destFile;
 	private FileSystem fileSystem;
 
 	@Autowired
-	private OrderService orderService;
+	private BacklogService backlogService;
 	
 	@BeforeMethod
 	public void beforeMethod() throws IOException
@@ -59,9 +61,9 @@ public class OrderCsvImportTest extends AbstractTestNGSpringContextTests {
 		// first after training
 		destFile = Files.copy(src, destFile, StandardCopyOption.REPLACE_EXISTING);
 		CountDownLatch latch = new CountDownLatch(2);
-		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(orderService)
-				.handleOrder(Mockito.any(Order.class));
+		doAnswer(new CountDownLatchAnswer().countsDownLatch(latch)).when(backlogService)
+				.saveBacklogItems(Mockito.any(Backlog.class));
 		assertTrue(latch.await(3, TimeUnit.SECONDS), "latch interupted");
-		verify(orderService, Mockito.times(2)).handleOrder(Mockito.any(Order.class));
+		verify(backlogService, Mockito.times(2)).saveBacklogItems(Mockito.any(Backlog.class));
 	}
 }
