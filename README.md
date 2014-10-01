@@ -15,7 +15,6 @@ A delivery note is simple flat CSV file:
 	
 	FRAME; Road bike frame 60 cm;1935182366;103.95;2
 	DRIVE; Shimano HG LX;1935182439;31.85;6
-=======
  
 ### Spring Integration
 Spring Integration does not support CSV files so we use Spring Batch for this.
@@ -44,3 +43,18 @@ the FlatFileItemReader is wrapped in eip.spring.integration.OrderFlatFileItemRea
 ### Camel
 The Split component splits on the token "ORDER", and feeds the ORDER and its ITEM's to eip.camel.CsvToOrderProcessor.
 
+## Further decoupling the system
+### Loosly coupling of the Stock- and OrderService
+Consider you have different applications responsible for Stock and Order. 
+This can be done by proxying the interface of the StockService over the messaging system.
+The client is totally unaware of the underlying implementation.
+
+#### Spring Integration
+The Gateway proxies the StockService interface, invoking the methods over channels.
+A ServiceActivator listens on the request channel, forwards the request to a bean and returns the reply to the reply channel.
+
+#### Camel
+The Proxy component defines the route from the StockService interface to a Direct component.
+A route is defined to route from the Direct component to a Spring bean.
+
+ 

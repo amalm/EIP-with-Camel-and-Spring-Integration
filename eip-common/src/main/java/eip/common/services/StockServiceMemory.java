@@ -11,7 +11,7 @@ public class StockServiceMemory implements StockService {
 	
 	@Override
 	public Integer getItemsOnStock(String itemNumber) {
-		throw new UnsupportedOperationException();
+		return Integer.valueOf(2);
 	}
 
 	@Override
