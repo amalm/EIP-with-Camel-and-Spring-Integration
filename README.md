@@ -57,4 +57,13 @@ A ServiceActivator listens on the request channel, forwards the request to a bea
 The Proxy component defines the route from the StockService interface to a Direct component.
 A route is defined to route from the Direct component to a Spring bean.
 
- 
+
+## ActiveMQ, Enricher and Routing
+As an order is processed, a notification should be sent to the customer.
+This should be done asynchronous but reliable. JMS implemented by ActiveMQ is used for this purpose.
+
+Further, the notification producer should not be aware of if the customer is to notified using SMS or mail.
+An enricher converts the Notification message into either a SmsNotification or a MailNotification based on
+customer configuration.
+
+The enriched message is passed to a router, dispatching to a JMS queue for SMS or mail.

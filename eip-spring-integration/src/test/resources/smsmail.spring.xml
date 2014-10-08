@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:int="http://www.springframework.org/schema/integration"
+	xmlns:int-jms="http://www.springframework.org/schema/integration/jms"
+	xsi:schemaLocation="
+	http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+	http://www.springframework.org/schema/integration http://www.springframework.org/schema/integration/spring-integration.xsd
+	http://www.springframework.org/schema/integration/jms http://www.springframework.org/schema/integration/jms/spring-integration-jms.xsd">
+
+	<bean id="connectionFactory"
+		class="org.springframework.jms.connection.CachingConnectionFactory">
+		<property name="targetConnectionFactory">
+			<bean class="org.apache.activemq.ActiveMQConnectionFactory">
+				<property name="brokerURL" value="vm://localhost" />
+			</bean>
+		</property>
+		<property name="sessionCacheSize" value="10" />
+		<property name="cacheProducers" value="false" />
+	</bean>
+
+	<int:channel id="transformerChannel" />
+	<int:transformer id="notificationTransformer" input-channel="transformerChannel"
+		method="transform" output-channel="routingChannel">
+		<bean class="eip.spring.integration.NotificationTransformer" />
+	</int:transformer>
+
+	<int:channel id="routingChannel" />
+	<int:payload-type-router input-channel="routingChannel">
+		<int:mapping type="eip.common.services.SmsNotification"
+			channel="smsOutQueue" />
+		<int:mapping type="eip.common.services.MailNotification"
+			channel="mailOutQueue" />
+	</int:payload-type-router>
+
+	<int:channel id="smsOutQueue" />
+	<int-jms:outbound-channel-adapter id="smsJms"
+		channel="smsOutQueue" destination="smsJmsQueue" />
+	<int:channel id="mailOutQueue" />
+	<int-jms:outbound-channel-adapter id="mailJms"
+		channel="mailOutQueue" destination="mailJmsQueue" />
+
+	<bean id="smsJmsQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="queue.sms" />
+	</bean>
+	<bean id="mailJmsQueue" class="org.apache.activemq.command.ActiveMQQueue">
+		<constructor-arg value="queue.mail" />
+	</bean>
+	<int:poller id="poller" default="true" fixed-delay="1000" />
+
+	<int-jms:message-driven-channel-adapter
+		id="smsIn" destination="smsJmsQueue" channel="smsInQueue" />
+	<int:channel id="smsInQueue" />
+
+	<int-jms:message-driven-channel-adapter
+		id="mailIn" destination="mailJmsQueue" channel="mailInQueue" />
+	<int:channel id="mailInQueue" />
+
+	<int:service-activator input-channel="smsInQueue"
+		ref="smsServiceMock" method="send" />
+	<int:service-activator input-channel="mailInQueue"
+		ref="mailServiceMock" method="send" />
+
+
+	<bean id="smsServiceMock" factory-method="mock" class="org.mockito.Mockito">
+		<constructor-arg value="eip.common.services.SmsService" />
+	</bean>
+	<bean id="mailServiceMock" factory-method="mock" class="org.mockito.Mockito">
+		<constructor-arg value="eip.common.services.MailService" />
+	</bean>
+
+</beans>
