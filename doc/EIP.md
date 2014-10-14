@@ -1,23 +1,18 @@
-# Einleitung
-Kein IT-System kommt Interaktion mit anderen Systemes vorbei. Sei es Web-Services, Import/Export mittels Dateien in CSV, XML oder sonstige Formate.
+# Zusammenfassung
+Kein IT-System kommt ohne Interaktion mit anderen System aus, sei es via Web-Services oder auch durch Import/Export von Dateien in CSV, XML oder sonstige Formaten.
 
-Für die meiste Technologien gibt es entweder Unterstützung in Form von Standads wie JAX-WS, für andere gute Frameworks wie Spring Batch.
+Für die meisten Technologien gibt es entweder Unterstützung in Form von Standards wie JAX-WS, für Web-Services, oder Framework-Lösungen  wie Spring Batch, für CSV Verarbeitung. Für die Interaktion zwischen und in IT-System beschreibt das Standardwerk [Enterprise Integration Patterns] [eip] Ansätze um Skalierung und Erweiterbarkeit zu gewährleisten. 
 
-Ansätze um Skalierung und Erweiterbarkeit eines IT-System zu gewährleisten, bietet das Standardwerk [Enterprise Integration Patterns] [eip].
-
-Zwei bekannte Frameworks unterstützen die Enterprise Integration Patterns: [Camel] [camel] und [Spring Integration] [si].
+Diese Enterprise Integration Patterns wurden in den Frameworks [Camel] [camel] und [Spring Integration] [si] umgesetzt und werden hier anhand eines Praxisbeispiels, eines Fahrradshops, erklärt und durchleuchtet. 
  
-In diesem Artikel zeigen wir wie man die Frameworks einsetzen kann. Als Modell nehmen wir einen fiktiven Fahrradshop.
+Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und typische Integrationsszenarieren lösen kann:
 
-Lieferscheine von verschiedenen Liefernaten werden in CSV Format in einen Verzeichnis gespeichert. Die Lagerbestände werden bei der Verarbeitung
-aktualisiert.
+ - Lieferscheinverarbeitung
+ - Lagerverwaltung
+ - Bestellungsystem
+ - Benachrichtungssystem
 
-Bestellungen von Kunden werden ebenso in CSV geliefert. Bei der Bestellung wird geprüft falls genügend Artikeln auf Bestand sind. Falls nicht 
-werden Bestellungen an einen Lieferant geschickt.
-
-Weiters werden die Kunden beim Eingang der Bestellung benachrichtigt, entweder über SMS oder Email.      
-
-![Alt graphic](eip.png)
+![EIP im Fahrradshop](images/eip.png)
 
 # Referenzen
 [eip]: http://www.enterpriseintegrationpatterns.com/ "Enterprise Integration Patterns, Gregor Hohpe & Bobby Woolf"
