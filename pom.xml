@@ -9,7 +9,9 @@
 		<module>eip-spring-integration</module>
 		<module>eip-common</module>
 		<module>eip-camel</module>
-		<module>eip-webservice</module>
+		<module>eip-webservice-spring</module>
+		<module>eip-webservice-client</module>
+		<module>eip-webservice-camel</module>
 	</modules>
 	<properties>
 		<slf4j.version>1.7.5</slf4j.version>

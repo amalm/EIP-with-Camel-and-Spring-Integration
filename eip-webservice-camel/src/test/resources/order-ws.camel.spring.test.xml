@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:cxf="http://camel.apache.org/schema/cxf" xmlns:camel="http://camel.apache.org/schema/spring" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context" xmlns:jaxws="http://cxf.apache.org/jaxws"
+    xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+http://cxf.apache.org/core http://cxf.apache.org/schemas/core.xsd
+http://cxf.apache.org/jaxws http://cxf.apache.org/schemas/jaxws.xsd
+http://camel.apache.org/schema/cxf http://camel.apache.org/schema/cxf/camel-cxf.xsd
+http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/camel-spring.xsd
+"
+>
+    <jaxws:client id="partsOrderServiceClient" 
+      serviceName="partsOrderService"
+      endpointName="partsOrderEndpoint" 
+      address="http://localhost:8080/eip-webservice/partsOrder" 
+      serviceClass="parts.eip.PartsOrder">
+    </jaxws:client>
+
+    <cxf:cxfEndpoint id="partsOrderEndpoint" 
+      address="http://localhost:8080/eip-webservice/partsOrder"
+      serviceName="partsOrderService"
+      endpointName="partsOrderRouter"
+      serviceClass="parts.eip.PartsOrder" >
+    </cxf:cxfEndpoint>
+    
+    <bean id="serviceImpl" class="eip.camel.ws.PartsOrderTestImpl" />
+
+    <camel:camelContext id="partsOrderCamelContext">
+        <camel:route>
+            <camel:from uri="cxf:bean:partsOrderEndpoint" />
+            <camel:to uri="bean:serviceImpl" />
+        </camel:route>
+    </camel:camelContext>
+</beans>

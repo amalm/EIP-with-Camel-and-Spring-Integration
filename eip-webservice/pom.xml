@@ -5,7 +5,7 @@
     <artifactId>eip-parent</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>eip-webservice</artifactId>
+  <artifactId>eip-webservice-spring</artifactId>
   <name>Enterprise Integration WebService Test Module</name>
   <packaging>war</packaging>
   <dependencies>
