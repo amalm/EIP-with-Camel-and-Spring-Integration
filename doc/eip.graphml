@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <graphml xmlns="http://graphml.graphdrawing.org/xmlns" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:y="http://www.yworks.com/xml/graphml" xmlns:yed="http://www.yworks.com/xml/yed/3" xsi:schemaLocation="http://graphml.graphdrawing.org/xmlns http://www.yworks.com/xml/schema/graphml/1.1/ygraphml.xsd">
-  <!--Created by yEd 3.12.2-->
+  <!--Created by yEd 3.13-->
   <key for="graphml" id="d0" yfiles.type="resources"/>
   <key for="port" id="d1" yfiles.type="portgraphics"/>
   <key for="port" id="d2" yfiles.type="portgeometry"/>
@@ -20,7 +20,7 @@
           <y:Geometry height="55.0" width="35.0" x="96.5" y="234.5"/>
           <y:Fill color="#FFFFFFE6" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="84.66015625" x="-24.830078125" y="-21.96875">Delivery note<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="80.4765625" x="-22.73828125" y="-21.962890625">Delivery note<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -43,7 +43,7 @@
           <y:Geometry height="55.0" width="85.0" x="214.5" y="234.5"/>
           <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
           <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="81.560546875" x="1.7197265625" y="18.515625">StockService<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="76.052734375" x="4.4736328125" y="18.5185546875">StockService<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -67,7 +67,7 @@
           <y:Geometry height="55.0" width="35.0" x="96.5" y="342.5"/>
           <y:Fill color="#FFFFFFE6" transparent="false"/>
           <y:BorderStyle color="#000000" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="38.3125" x="-1.65625" y="-21.96875">Order<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="37.380859375" x="-1.1904296875" y="-21.962890625">Order<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -90,7 +90,7 @@
           <y:Geometry height="55.0" width="85.0" x="214.5" y="342.5"/>
           <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
           <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="82.662109375" x="1.1689453125" y="18.515625">OrderService<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="77.951171875" x="3.5244140625" y="18.5185546875">OrderService<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -114,7 +114,7 @@
           <y:Geometry height="55.0" width="85.0" x="413.5" y="342.5"/>
           <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
           <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.9375" modelName="custom" textColor="#000000" visible="true" width="51.42578125" x="16.787109375" y="11.53125">Backlog
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.92578125" modelName="custom" textColor="#000000" visible="true" width="49.01171875" x="17.994140625" y="11.537109375">Backlog
 Service<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
@@ -259,7 +259,7 @@ Service<y:LabelModel>
           <y:Geometry height="55.0" width="85.0" x="149.5" y="539.25"/>
           <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
           <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="73.908203125" x="5.5458984375" y="18.515625">SmsService<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="68.353515625" x="8.3232421875" y="18.5185546875">SmsService<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -283,7 +283,7 @@ Service<y:LabelModel>
           <y:Geometry height="55.0" width="85.0" x="286.5" y="539.25"/>
           <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
           <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
-          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.96875" modelName="custom" textColor="#000000" visible="true" width="72.724609375" x="6.1376953125" y="18.515625">MailService<y:LabelModel>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="17.962890625" modelName="custom" textColor="#000000" visible="true" width="68.470703125" x="8.2646484375" y="18.5185546875">MailService<y:LabelModel>
               <y:SmartNodeLabelModel distance="4.0"/>
             </y:LabelModel>
             <y:ModelParameter>
@@ -302,7 +302,6 @@ Service<y:LabelModel>
       </data>
     </node>
     <node id="n12">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.bpmn.Gateway.withShadow">
           <y:Geometry height="45.0" width="45.0" x="234.5" y="464.25"/>
@@ -326,7 +325,6 @@ Service<y:LabelModel>
       </data>
     </node>
     <node id="n13">
-      <data key="d5"/>
       <data key="d6">
         <y:GenericNode configuration="com.yworks.bpmn.Event.withShadow">
           <y:Geometry height="30.0" width="30.0" x="242.0" y="415.875"/>
@@ -346,6 +344,31 @@ Service<y:LabelModel>
             <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill" value="#ffffffe6"/>
             <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill2" value="#d4d4d4cc"/>
             <y:Property class="com.yworks.yfiles.bpmn.view.EventCharEnum" name="com.yworks.bpmn.characteristic" value="EVENT_CHARACTERISTIC_START"/>
+          </y:StyleProperties>
+        </y:GenericNode>
+      </data>
+    </node>
+    <node id="n14">
+      <data key="d6">
+        <y:GenericNode configuration="com.yworks.bpmn.Activity.withShadow">
+          <y:Geometry height="55.0" width="85.0" x="413.5" y="539.25"/>
+          <y:Fill color="#FFFFFFE6" color2="#D4D4D4CC" transparent="false"/>
+          <y:BorderStyle color="#123EA2" type="line" width="1.0"/>
+          <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="12" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="31.92578125" modelName="custom" textColor="#000000" visible="true" width="69.07421875" x="7.962890625" y="11.537109375">Order
+WebService<y:LabelModel>
+              <y:SmartNodeLabelModel distance="4.0"/>
+            </y:LabelModel>
+            <y:ModelParameter>
+              <y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/>
+            </y:ModelParameter>
+          </y:NodeLabel>
+          <y:StyleProperties>
+            <y:Property class="com.yworks.yfiles.bpmn.view.BPMNTypeEnum" name="com.yworks.bpmn.type" value="ACTIVITY_TYPE"/>
+            <y:Property class="com.yworks.yfiles.bpmn.view.ActivityTypeEnum" name="com.yworks.bpmn.activityType" value="ACTIVITY_TYPE_TASK"/>
+            <y:Property class="com.yworks.yfiles.bpmn.view.TaskTypeEnum" name="com.yworks.bpmn.taskType" value="TASK_TYPE_ABSTRACT"/>
+            <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.line.color" value="#000000"/>
+            <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill" value="#ffffffe6"/>
+            <y:Property class="java.awt.Color" name="com.yworks.bpmn.icon.fill2" value="#d4d4d4cc"/>
           </y:StyleProperties>
         </y:GenericNode>
       </data>
@@ -441,7 +464,6 @@ Service<y:LabelModel>
       </data>
     </edge>
     <edge id="e9" source="n12" target="n11">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -454,7 +476,6 @@ Service<y:LabelModel>
       </data>
     </edge>
     <edge id="e10" source="n12" target="n10">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
@@ -468,7 +489,6 @@ Service<y:LabelModel>
       </data>
     </edge>
     <edge id="e11" source="n3" target="n13">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0"/>
@@ -479,11 +499,36 @@ Service<y:LabelModel>
       </data>
     </edge>
     <edge id="e12" source="n13" target="n12">
-      <data key="d9"/>
       <data key="d10">
         <y:PolyLineEdge>
           <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
             <y:Point x="257.0" y="464.0"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+          <y:BendStyle smoothed="false"/>
+        </y:PolyLineEdge>
+      </data>
+    </edge>
+    <edge id="e13" source="n4" target="n4">
+      <data key="d9"/>
+      <data key="d10">
+        <y:SplineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="420.5326086956522" y="444.32065217391306"/>
+            <y:Point x="503.58152173913044" y="444.32065217391306"/>
+          </y:Path>
+          <y:LineStyle color="#000000" type="line" width="1.0"/>
+          <y:Arrows source="none" target="standard"/>
+        </y:SplineEdge>
+      </data>
+    </edge>
+    <edge id="e14" source="n14" target="n14">
+      <data key="d10">
+        <y:PolyLineEdge>
+          <y:Path sx="0.0" sy="0.0" tx="0.0" ty="0.0">
+            <y:Point x="456.0" y="452.7663043478261"/>
+            <y:Point x="456.0" y="452.7663043478261"/>
           </y:Path>
           <y:LineStyle color="#000000" type="line" width="1.0"/>
           <y:Arrows source="none" target="standard"/>
