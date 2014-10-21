@@ -6,6 +6,7 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
     <artifactId>eip-webservice-camel</artifactId>
+    <packaging>war</packaging>
     <dependencies>
         <!-- Camel -->
         <dependency>
@@ -37,7 +38,6 @@
         <dependency>
             <groupId>org.apache.cxf</groupId>
             <artifactId>cxf-rt-bindings-soap</artifactId>
-            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>org.springframework</groupId>
@@ -53,6 +53,12 @@
             <artifactId>eip-common</artifactId>
             <version>${project.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework</groupId>
+            <artifactId>spring-web</artifactId>
+            <version>${spring.version}</version>
+            <scope>runtime</scope>
         </dependency>
     </dependencies>
 </project>
