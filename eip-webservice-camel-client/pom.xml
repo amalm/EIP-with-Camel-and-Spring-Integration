@@ -6,9 +6,8 @@
         <artifactId>eip-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>eip-webservice-client</groupId>
-    <artifactId>eip-webservice-client</artifactId>
-    <name>eip-webservice-client</name>
+    <artifactId>eip-webservice-camel-client</artifactId>
+    <name>Enterprise Integration Camel Client Webservice Module</name>
     <url>http://maven.apache.org</url>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

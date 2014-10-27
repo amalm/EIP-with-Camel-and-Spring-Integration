@@ -5,9 +5,8 @@
         <artifactId>eip-parent</artifactId>
         <version>0.0.1-SNAPSHOT</version>
     </parent>
-    <groupId>eip-webservice-spring-client</groupId>
     <artifactId>eip-webservice-spring-client</artifactId>
-
+    <name>Enterprise Integration Spring Client Webservice Module</name>
     <dependencies>
         <dependency>
             <groupId>org.springframework.ws</groupId>

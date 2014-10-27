@@ -61,8 +61,8 @@
             <scope>test</scope>
         </dependency>
         <dependency>
-            <groupId>eip-webservice-client</groupId>
-            <artifactId>eip-webservice-client</artifactId>
+            <groupId>eip</groupId>
+            <artifactId>eip-webservice-camel-client</artifactId>
             <version>${project.version}</version>
         </dependency>
 	</dependencies>

@@ -7,7 +7,7 @@
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
 	<artifactId>eip-spring-integration</artifactId>
-	<name>Enterprise Integration Spring Integeration Module</name>
+	<name>Enterprise Integration Spring Integration Module</name>
 	<dependencies>
 		<dependency>
 			<groupId>${project.groupId}</groupId>
