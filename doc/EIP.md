@@ -397,9 +397,136 @@ Spring Konfiguration dazu:
     
 ## Lieferantenbestellung mit SOAP Web Service
 
+Sofern eine Bestellung nicht mit dem Lagerbestand abgedeckt werden kann, werden die Teile im Backlog abgelegt und es wird eine Bestellung beim Lieferanten durchgeführt. Die Bestellung sofern erfolgreich wird mit einer Bestellnummer quittiert. Beide SOAP Client sowohl von Camel als auch Spring setzen auf eine Generierung von Java Code auf. Die Basis für diese Generierung ist die Beschreibung des Web Services in der Web Service Description Language (WSDL). 
+
 ### Umsetzung mit Spring Integration
 
+Spring empfiehlt eine Code-Generierung mit dem Maven jaxb2-plugin, die WSDL-Datei des WebServices wird definiert und in welchen Package die generierten Paketen liegen sollen.
+ 
+     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.jvnet.jaxb2.maven2</groupId>
+                <artifactId>maven-jaxb2-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <schemaLanguage>WSDL</schemaLanguage>
+                    <generatePackage>parts.eip</generatePackage>
+                    <forceRegenerate>true</forceRegenerate>
+                    <schemas>
+                        <schema>
+                            <fileset>
+                                <directory>${basedir}/src/main/resources/</directory>
+                                <includes>
+                                    <include>partsorder.wsdl</include>
+                                </includes>
+                            </fileset>
+                        </schema>
+                    </schemas>
+                </configuration>
+            </plugin>
+        </plugins>
+     </build>
+
+Durch die Generierung stehen uns die Basisdatentypen für die Service Interaktion zur Verfügung. Die einzelnen Operation des WebService welche verwendet werden wollen müssen explizit implementiert werden. Unser WebService Client leitet von der Klasse _WebServiceGatewaySupport_ ab welche uns Basismethoden zur Interaktion zur Verfügung stellt. Die gewünschte Operation des WebService muss normalerweise definiert werden, da unser Service jedoch nur eine Operation zur Verfügung stellt, ist das hier nicht notwendig. Die Operations-Payload ist unserem Fall die Bestellung. 
+
+     public class PartsOrderService extends WebServiceGatewaySupport {
+         public OrderResponse order(OrderRequest orderRequest) {
+             OrderResponse response = (OrderResponse) getWebServiceTemplate().marshalSendAndReceive(orderRequest);
+             return response;
+         };
+     }
+
+Um den WebService Client letztendlich auch zu verwenden ist es notwendig zwei Spring-Beans zu definieren. Erstens einen Marshaller für die Verarbeitung von Java Objekten zu XML und vice versa und zweitens den Service selbst. Der Service benötigt für die Funktionsfähigkeit den Marshaller und die URI des WebService. 
+
+    <bean id="marshaller" class="org.springframework.oxm.jaxb.Jaxb2Marshaller">
+        <property name="contextPath" value="parts.eip" />
+    </bean>
+
+    <bean id="webserviceTemplate" class="parts.eip.PartsOrderService" >
+        <property name="defaultUri" value="http://localhost:8080/eip-webservice-camel/partsOrder"></property>
+        <property name="marshaller" ref="marshaller" />
+        <property name="unmarshaller" ref="marshaller" />
+    </bean>
+   
 ### Umsetzung mit Camel
+
+     Bei einer Umsetzung mit Camel kommt das Apache Framework für Open-Source Services kurz Apache CXF [cxf] zur Verwendung. Analog zu Spring Integration wird hier eine Maven Plugin für die Codegenerierung verwendet. 
+     <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.cxf</groupId>
+                <artifactId>cxf-codegen-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>generate-sources</id>
+                        <phase>generate-sources</phase>
+                        <configuration>
+                            <sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
+                            <wsdlOptions>
+                                <wsdlOption>
+                                    <wsdl>${basedir}/src/main/resources/partsorder.wsdl</wsdl>
+                                </wsdlOption>
+                            </wsdlOptions>
+                        </configuration>
+                        <goals>
+                            <goal>wsdl2java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+      </build>
+
+Der wesentliche Unterschied zu Spring Integration ist dass hier ein Java-Interface definiert wird was eine Java Beschreibung des WebServices ist und bereits die Operationen des WebService als Methoden definiert sind. 
+     
+     @WebService(targetNamespace = "http://eip.parts", name = "PartsOrder")
+     @XmlSeeAlso({ObjectFactory.class})
+     @SOAPBinding(parameterStyle = SOAPBinding.ParameterStyle.BARE)
+     public interface PartsOrder {
+     
+         @WebResult(name = "OrderResponse", targetNamespace = "http://eip.parts", partName = "OrderResponse")
+         @WebMethod(operationName = "Order")
+         public OrderResponse order(
+             @WebParam(partName = "OrderRequest", name = "OrderRequest", targetNamespace = "http://eip.parts")
+             OrderRequest orderRequest
+         );
+     }
+
+Um den WebService schlussendlich zu verwenden ist es noch notwendig im Spring Context den WebService Client zu definieren. Hierbei wird das Java-Interface mit der URI des WebService verdrahtet und kann verwendet werden. 
+
+     <jaxws:client id="partsOrderServiceClient" serviceName="partsOrderService" endpointName="partsOrderEndpoint" address="http://localhost:8080/eip-webservice/partsOrder" serviceClass="parts.eip.PartsOrder">
+     </jaxws:client>
+
+### Verwendung
+
+Bei der Einbindung von Fremdsystem sollte man beachten dass diese womöglich nicht verfügbar sind auch wenn die eigene Applikation zur Verfügung steht, dadurch ist es sinnvoll diese von einander zu entkoppeln. Da ansonsten die Verfügbarkeit der eigenen Applikation von dem Fremdsystem abhängt und wenn das Fremdsystem nicht zur Verfügung steht steht auch die eigene Applikation gar nicht oder nur eingeschränkt zur Verfügung steht. Der Scheduler vom Spring Framework bietet eine einfache Möglichkeit diese Entkopplung zu erreichen. 
+
+Mit der folgenden Spring Konfiguration Datei, definieren den Scheduler. Was vom Scheduler zu steuern ist wird über Annotationen direkt im Java Code gesteuert. 
+
+
+     <task:annotation-driven scheduler="myScheduler"/>
+     <task:scheduler id="myScheduler" pool-size="1" />
+
+Wir definieren in unserem Backlog Service eine Methode welche periodisch abgearbeitet wird, wobei erst nach einer Sekunde nachdem die Verarbeitung abgeschlossen ist eine neue Verarbeitung startet. Unsere Method überprüft ob sich in unseren Backlog Element befinden die bestellt werden können. Sofern dies der Fall wird eine Bestellung getätigt, falls nicht bleibt das Element im Backlog enthalten. 
+
+     @Scheduled(fixedDelay = 1000)
+     public void processBacklog() {
+             if (getBacklogItems().size() > 0) {
+                 BacklogItem backlogItem = getBacklogItems().get(0);
+                 OrderResponse orderResponse = getSOAPWebServiceClient().order(toOrderRequest(backlogItem));
+                 if (orderResponse != null && isValidOrderNumber(orderResponse.getOrderNumberUuid())) {
+                     list.remove(backlogItem);
+                 } 
+             }
+     }
 
 # Fazit
 Mit Enterprise Integration Patterns definiert einen Katalog von Müstern für ein erweiterbare Architektur im Sinne Event Driven Architecture (EDA).
@@ -415,3 +542,4 @@ Die Investition in ein solches Framework ist ab mittlere Systemgröße zu empfeh
 [camel]: http://camel.apache.org/ "Apache Camel"
 [si]: http://projects.spring.io/spring-integration/ "Spring Integration"
 [sb]: http://projects.spring.io/spring-batch/ "Spring Batch"
+[cxf]: http://cxf.apache.org/ "Apache CXF: An Open-Source Services Framework"
