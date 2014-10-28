@@ -15,8 +15,8 @@ Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und
 # Domainmodell
 ![EIP im Fahrradshop](eip.png)
 
-Der Fahrradshop hat ein Lager. Bei einer Bestellung wird zuerst geprüft falls genügend Anzahl des gewünschten Artikels auf Lager ist.
-Auf Lager vorhandene Artikel werden ausgebucht, fehlende Menge nachbestellt. Der Lieferanten enden Lieferscheine, die als Lagereingänge behandelt werden.
+Bei einer Bestellung wird zuerst geprüft ob eine ausreichende Menge des gewünschten Artikels im Lager des Fahrradshops vorhanden ist.
+Im Lager vorhandene Artikel werden ausgebucht und die fehlende Menge wird nachbestellt. Die Lieferanten senden Lieferscheine, die als Lagereingänge behandelt werden.
 
 Das Domainmodell in Kürze:
 
@@ -26,8 +26,9 @@ Das Domainmodell in Kürze:
 - Sms- bzw. MailService: sendet Bestellbestätigungen an den Kunden über SMS oder Mail.
 
 # Use Cases
+
 ## CSV Import von Bestellungen
-Die Aufträge sollten als CSV Dateien von einem Verzeichnis gelesen werden. Ein Auftrag besteht aus Kopf(ORDER) und Positionen(ITEM). CSV Format:
+Die Bestellaufträge werden als CSV Dateien aus einem Verzeichnis gelesen. Ein Auftrag besteht aus Auftrags-Kopf(ORDER) und Auftrags-Positionen(ITEM). Folgend ein Beispiel im CSV Format:
 
     ORDER;Bike support;1
     ITEM;FRAME;Road bike frame 60 cm;1935182366
@@ -37,12 +38,12 @@ Die Aufträge sollten als CSV Dateien von einem Verzeichnis gelesen werden. Ein 
 
 Die Verarbeitungsschritte:
 
-1. CSV Datei lesen, in Aufträge teilen (1 ORDER, n ITEM)
-1. Prüfen falls bestellte Artikeln auf Lager sind:
+1. CSV Datei lesen, in Einzelaufträge aufteilen (1 ORDER, n ITEM)
+1. Prüfen ob bestellte Artikeln auf Lager sind:
     - falls nicht einen Bestellwunsch erzeugen
-    - Andersfalls den Lagerbestand reduzieren
+    - Andernfalls den Lagerbestand reduzieren
     
-Eine weitere nicht funktionale Anforderung ist, dass die OrderService nicht den BacklogService "kennen" sollte. Diese lose Kopplung wird es ermöglichen die Systeme in die Zukunft getrennt zu betreiben. 
+Eine weitere nicht funktionale Anforderung ist, dass der OrderService nicht den BacklogService "kennen" sollte. Diese lose Kopplung wird es ermöglichen die Systeme in die Zukunft getrennt zu betreiben. 
 
 ### Java Service Implementierungen
 Die Implementierungen der Services sind völlig unwissend von Spring Integration bzw. Camel.
@@ -78,8 +79,8 @@ In der Implementierung ist zu sehen, dass keine Verbindung mit dem BacklogServic
 
 ### Anmerkung zu der Konfiguration von Spring Integration und Camel
 Spring Integration unterstützt "klassische" Spring XML Konfiguration als auch Annotationen. 
-Camel unterstützt Spring Konfiguration mit oder ohne Annotationen. Weiter kann Camel mit Java DSL statt oder zusätzlich zu Spring verwendet werden.
-Hier wird die Spring XML Konfiguration verwendendet zwecks Vergleichbarkeit der beiden Frameworks. 
+Camel unterstützt Spring Konfiguration mit oder ohne Annotationen. Weiter kann Camel mit Java DSL statt oder zusätzlich zur Spring XML Konfiguration verwendet werden.
+Zwecks Vergleichbarkeit der beiden Frameworks wird hier immer nur Spring XML Konfiguration verwendet.
 
 ### Umsetzung mit Spring Integration
 Da in der Spring Familie ausgereifte Funktionalität für CSV Verarbeitung in Form vom  [Spring Batch] [sb] vorhanden ist, gibt es keine eigene Implementierung für CSV in Spring Integration.
@@ -127,10 +128,10 @@ Die Konfiguration für Spring Batch
     </bean>
     
 - DelimitedLineTokenizer: teilt jede Zeile in einzelne Felder.
-- PatternMatchingCompositeLineTokenizer: entscheidet auf Grund die Name(ORDER oder ITEM) welche DelimitedLineTokenizer zu verwenden ist.
+- PatternMatchingCompositeLineTokenizer: entscheidet auf Grund des Names(ORDER oder ITEM) welcher DelimitedLineTokenizer zu verwenden ist.
 - FlatFileItemReader: liest die CSV Datei zeilenweise.
 
-Spring Batch benötigt ein wenig Hilfe da es sich um einen s.g. Multi-Line Records handelt. Die Implementierung dafür ist in OrderFlatFileItemReaderDelegate
+Spring Batch benötigt ein wenig Hilfe da es sich um einen so genannten Multi-Line Records handelt. Die Implementierung dafür ist in OrderFlatFileItemReaderDelegate
 
     public Order read() throws ... {
         FieldSet fieldSet = delegate.read();
@@ -164,7 +165,7 @@ Spring Batch benötigt ein wenig Hilfe da es sich um einen s.g. Multi-Line Recor
         return order;
     }
 
-Als jetzt Spring Batch so weit aufgesetzt ist, kann Spring Integration wie folgt konfiguriert werden:
+Da jetzt Spring Batch so weit konfiguriert ist, folgt nun Spring Integration:
 
     <int-file:inbound-channel-adapter id="orderChannelAdapter"
         directory="file:../eip-common/src/main/resources/orders" channel="csvOrderChannel">
@@ -187,11 +188,11 @@ Als jetzt Spring Batch so weit aufgesetzt ist, kann Spring Integration wie folgt
         <int:service-activator ref="backlogService" method="saveBacklogItems"/>
     </int:chain>
 
-- inbound-channel-adapter: überwacht eines Verzeichnis. Als eine nete Datei entdeckt wird, wird sie in den  _csvOrderChannel_ gesteckt.
-- service-activator: nimmt einen Nachricht - hier die Dateiname - aus _csvOrderChannel_ und verarbeitet sie Zeilenweise mittels den o.g. _orderCsvReader_. Die vom _orderCsvReader_ erzeugte _Order_ Objekt werden als Message ins _orderServiceChannel_.
-- chain: eine Kette wird hier verwendet um die Anzahl von expliciten input-/output-channels zu reduzieren. Ein _Order_ wird aus _orderServiceChannel_ genommen und verarbeitet. Als Ergebnis wird _Backlog_ Objekt erzeugt und den _BacklogService_ weitergegeben.
+- inbound-channel-adapter: überwacht ein Verzeichnis. Wenn eine Datei entdeckt wird, wird sie in den  _csvOrderChannel_ gesteckt.
+- service-activator: nimmt einen Nachricht - hier eine Datei - aus _csvOrderChannel_ und verarbeitet sie zeilenweise mittels den o.g. _orderCsvReader_. Das vom _orderCsvReader_ erzeugte _Order_ Objekt wird als Message ins _orderServiceChannel_ übergeben
+- chain: eine Kette wird hier verwendet um die Anzahl von expliziten input-/output-channels zu reduzieren. Eine _Order_ wird aus _orderServiceChannel_ genommen und verarbeitet und als Ergebnis wird ein _Backlog_ Objekt erzeugt und den _BacklogService_ weitergegeben.
  
-Es ist zwar einiges an Konfiguration vorzunehmen, die Flexibilität gegenüber von einer klassischen Javaimplementierung ist aber wesentlich höher. 
+Es ist zwar einiges an Konfiguration vorzunehmen, jedoch ist die Flexibilität gegenüber einer klassischen Java-Implementierung wesentlich höher. 
  
 ### Umsetzung mit Camel
 Camel hat eine hohe Anzahl von Komponenten(Components). Diese werden in Form von URIs konfiguriert: 
@@ -215,10 +216,10 @@ Camel hat eine hohe Anzahl von Komponenten(Components). Diese werden in Form von
 - from: die File-Komponente liest vom Verzeichnis eine Datei.
 - split: die Datei wird aufgeteilt in ORDER mit ITEMs.
 - unmarshal: die CSV Komponente wird hier verwendet.
-- process: die _CsvToOrderProcessor_ erzeugt aus ORDER/ITEM Zeilen einen _Order_ Objekt
-- bean: _OrderService_ verarbeitet den _Order_, erzuegt ein _Backlog_ Objekt. Dies wird den _BacklogService_ übergeben.
+- process: der _CsvToOrderProcessor_ erzeugt aus ORDER/ITEM Zeilen ein _Order_ Objekt
+- bean: _OrderService_ verarbeitet die _Order_ und erzeugt ein _Backlog_ Objekt welches dann den _BacklogService_ übergeben wird.
 
-Die einzige noch notwendige Implementierung ist die CsvToOrderProcessor:
+Die Einzige noch notwendige Implementierung ist der CsvToOrderProcessor:
 
     public void process(Exchange exchange) throws Exception {
         String csvString = exchange.getIn().getBody(String.class);
@@ -246,14 +247,14 @@ Die einzige noch notwendige Implementierung ist die CsvToOrderProcessor:
         exchange.getIn().setBody(order);
     }
 
-Auch hier gelingt es mit Spring Konfiguration und wenig Kode die Services zu verdrahten.
+Auch hier gelingt es mit Spring Konfiguration und wenig Implementierung die Services zu verdrahten.
 
 ## Entkopplung Bestellbestätigung mittels JMS
-Der Kunde sollte nach der Bestellannahme eine Bestätigung erhalten. In eine Systemkonfiguration ist hinterlegt ob der Kunde mittels SMS oder Mail die Bestätigung erhalten soll.
+Der Kunde sollte nach der Bestellannahme eine Bestätigung erhalten. In einer Systemkonfiguration ist hinterlegt ob der Kunde mittels SMS oder Mail die Bestätigung erhalten soll.
 Senden der Bestätigung sollte asynchron von der Verarbeitung stattfinden da die Bestätigung nicht so hohe Priorität wie (neue) Bestellungen hat.
-Daher wird ActiveMQ als JMS Implementierung verwendet als Entkopplung zwischen OrderService und Sms- bzw. MailService.
+Daher wird ActiveMQ als JMS Implementierung eingesetzt und dient als Entkopplung zwischen OrderService und Sms- bzw. MailService.
 
-Weiter sollte der OrderService nicht mit der Entscheidung SMS oder Mail bzw. die dafür notwendige Paramatern für SMS oder Mail Versand.
+Weiter sollte der OrderService nicht mit der Entscheidung ob SMS oder Mail angebracht ist bzw. die dafür notwendige Parametern für SMS oder Mail Versand beschäftigt werden.
  
 ActiveMQ wird für beide Implementierung gleich konfiguriert:
     <amq:broker useJmx="false" persistent="false">
@@ -263,7 +264,7 @@ ActiveMQ wird für beide Implementierung gleich konfiguriert:
     </amq:broker>
 
 ### Umsetzung mit Spring Integration
-Zuerst wird die Bestellbestätigung _Notification_ in entweder einen _SmsNotification_ oder einen _MailNotification_ umgewandelt.
+Zuerst wird die Bestellbestätigung _Notification_ in entweder einer _SmsNotification_ oder einer _MailNotification_ umgewandelt.
 Dafür wird einen _Transformer_ implementiert:
 
     public Message<?> transform(Message<?> message) {
@@ -278,7 +279,7 @@ Dafür wird einen _Transformer_ implementiert:
         return MessageBuilder.withPayload(outNotification).build();
     }
     
-Die Konfiguration ob der Kunde SMS oder Mail erhalten soll, ist hier "geschummelt" - es wird die Name des Kunden als Basis verwendet.
+Die Konfiguration ob der Kunde SMS oder Mail erhalten soll, ist hier der Einfachheit halber im Namen des Kunden enthalten.
 
 Die Spring Konfiguration schaut wie folgt aus:
 
@@ -288,7 +289,7 @@ Die Spring Konfiguration schaut wie folgt aus:
         <bean class="eip.spring.integration.NotificationTransformer" />
     </int:transformer>
  
-Das Versenden erfolgt durch der Sms- bzw. MailService. Dazu wird ein _Router_ verwendet:
+Das Versenden erfolgt durch den Sms- bzw. MailService. Dazu wird ein _Router_ verwendet:
 
     <int:channel id="routingChannel" />
     <int:payload-type-router input-channel="routingChannel">
@@ -298,7 +299,7 @@ Das Versenden erfolgt durch der Sms- bzw. MailService. Dazu wird ein _Router_ ve
             channel="mailOutQueue" />
     </int:payload-type-router>
 
-Die Art des Messages, _SmsNotification_ oder _MailNotification_ entscheidet der zu verwendeten Channel.
+Die Art der Messages, _SmsNotification_ oder _MailNotification_ entscheidet über den zu verwendenden Channel.
 
 Zum Schluss die Konfiguration für die JMS Anbindung . hier für Sms:
 
@@ -321,7 +322,7 @@ Zum Schluss die Konfiguration für die JMS Anbindung . hier für Sms:
 
 - jms:outbound-channel-adapter schiebt die Messages vom _smsOutQueue_ zum _smsJmsQueue_.
 - smsJmsQueue: definiert ein ActiveMQ Queue _queue.sms_.
-- poller: definiert wie oft den Empfänger, der _jms:message-driven-channel-adapter_ pollen soll.
+- poller: definiert wie oft der Empfänger, der _jms:message-driven-channel-adapter_ pollen soll.
 - jms:message-driven-channel-adapter nimmt den Message vom ActiveMQ und gibt es an den _service-activator_.
 - service-activator: ruft der Spring Bean auf mit dem Parameter SmsNotification.
         
@@ -362,7 +363,7 @@ Die Entscheidung wohin damit, fordert in Camel folgende Java Implementierung:
     }
 
 
-Spring Konfiguration dazu:
+Die Spring Konfiguration dazu:
 
     <camel:camelContext id="activeMqTest">
         <camel:proxy id="notificationService" serviceInterface="eip.common.services.NotificationService"
@@ -397,7 +398,7 @@ Spring Konfiguration dazu:
     
 ## Lieferantenbestellung mit SOAP Web Service
 
-Sofern eine Bestellung nicht mit dem Lagerbestand abgedeckt werden kann, werden die Teile im Backlog abgelegt und es wird eine Bestellung beim Lieferanten durchgeführt. Die Bestellung sofern erfolgreich wird mit einer Bestellnummer quittiert. Beide SOAP Client sowohl von Camel als auch Spring setzen auf eine Generierung von Java Code auf. Die Basis für diese Generierung ist die Beschreibung des Web Services in der Web Service Description Language (WSDL). 
+Sofern eine Bestellung nicht mit dem Lagerbestand abgedeckt werden kann, werden die Teile im Backlog abgelegt und es wird eine Bestellung beim Lieferanten durchgeführt. Die Bestellung sofern erfolgreich wird mit einer Bestellnummer quittiert. Beide SOAP Clients sowohl von Camel als auch Spring setzen auf eine Generierung mit Java Code auf. Die Basis für diese Generierung ist die Beschreibung des Web Services in der Web Service Description Language (WSDL). 
 
 ### Umsetzung mit Spring Integration
 
@@ -434,7 +435,7 @@ Spring empfiehlt eine Code-Generierung mit dem Maven jaxb2-plugin, die WSDL-Date
         </plugins>
      </build>
 
-Durch die Generierung stehen uns die Basisdatentypen für die Service Interaktion zur Verfügung. Die einzelnen Operation des WebService welche verwendet werden wollen müssen explizit implementiert werden. Unser WebService Client leitet von der Klasse _WebServiceGatewaySupport_ ab welche uns Basismethoden zur Interaktion zur Verfügung stellt. Die gewünschte Operation des WebService muss normalerweise definiert werden, da unser Service jedoch nur eine Operation zur Verfügung stellt, ist das hier nicht notwendig. Die Operations-Payload ist unserem Fall die Bestellung. 
+Durch die Generierung stehen uns die Basisdatentypen für die Service Interaktion zur Verfügung. Die einzelnen Operation des WebService welche verwendet werden wollen, müssen explizit implementiert werden. Unser WebService Client leitet von der Klasse _WebServiceGatewaySupport_ ab welche uns Basismethoden zur Interaktion zur Verfügung stellt. Die gewünschte Operation des WebService muss normalerweise definiert werden, da unser Service jedoch nur eine Operation zur Verfügung stellt, ist das hier nicht notwendig. Die Operations-Payload ist unserem Fall die Bestellung. 
 
      public class PartsOrderService extends WebServiceGatewaySupport {
          public OrderResponse order(OrderRequest orderRequest) {
@@ -457,7 +458,7 @@ Um den WebService Client letztendlich auch zu verwenden ist es notwendig zwei Sp
    
 ### Umsetzung mit Camel
 
-     Bei einer Umsetzung mit Camel kommt das Apache Framework für Open-Source Services kurz Apache CXF [cxf] zur Verwendung. Analog zu Spring Integration wird hier eine Maven Plugin für die Codegenerierung verwendet. 
+     Bei einer Umsetzung mit Camel kommt das Apache Framework für Open-Source Services kurz Apache CXF [cxf] zur Verwendung. Analog zu Spring Integration wird hier ein Maven Plugin für die Codegenerierung verwendet. 
      <build>
         <plugins>
             <plugin>
@@ -500,22 +501,22 @@ Der wesentliche Unterschied zu Spring Integration ist dass hier ein Java-Interfa
          );
      }
 
-Um den WebService schlussendlich zu verwenden ist es noch notwendig im Spring Context den WebService Client zu definieren. Hierbei wird das Java-Interface mit der URI des WebService verdrahtet und kann verwendet werden. 
+Um den WebService schlussendlich zu verwenden ist es noch notwendig im Spring Context den WebService Client zu definieren. Hierbei wird das Java-Interface mit der URI des WebService verknüpft und kann nunmehr verwendet werden. 
 
      <jaxws:client id="partsOrderServiceClient" serviceName="partsOrderService" endpointName="partsOrderEndpoint" address="http://localhost:8080/eip-webservice/partsOrder" serviceClass="parts.eip.PartsOrder">
      </jaxws:client>
 
 ### Verwendung
 
-Bei der Einbindung von Fremdsystem sollte man beachten dass diese womöglich nicht verfügbar sind auch wenn die eigene Applikation zur Verfügung steht, dadurch ist es sinnvoll diese von einander zu entkoppeln. Da ansonsten die Verfügbarkeit der eigenen Applikation von dem Fremdsystem abhängt und wenn das Fremdsystem nicht zur Verfügung steht steht auch die eigene Applikation gar nicht oder nur eingeschränkt zur Verfügung steht. Der Scheduler vom Spring Framework bietet eine einfache Möglichkeit diese Entkopplung zu erreichen. 
+Bei der Einbindung von Fremdsystem sollte man beachten dass diese womöglich nicht verfügbar sind auch wenn die eigene Applikation zur Verfügung steht, dadurch ist es sinnvoll diese von einander zu entkoppeln. Da ansonsten die Verfügbarkeit der eigenen Applikation von dem Fremdsystem abhängt und wenn das Fremdsystem nicht zur Verfügung steht auch die eigene Applikation gar nicht oder nur eingeschränkt zur Verfügung steht. Der Scheduler vom Spring Framework bietet eine einfache Möglichkeit diese Entkopplung zu erreichen. 
 
-Mit der folgenden Spring Konfiguration Datei, definieren den Scheduler. Was vom Scheduler zu steuern ist wird über Annotationen direkt im Java Code gesteuert. 
+Mit der folgenden Spring Konfiguration Datei, wird der Scheduler definiert. Was vom Scheduler zu steuern ist wird über Annotationen direkt im Java Code gesteuert. 
 
 
      <task:annotation-driven scheduler="myScheduler"/>
      <task:scheduler id="myScheduler" pool-size="1" />
 
-Wir definieren in unserem Backlog Service eine Methode welche periodisch abgearbeitet wird, wobei erst nach einer Sekunde nachdem die Verarbeitung abgeschlossen ist eine neue Verarbeitung startet. Unsere Method überprüft ob sich in unseren Backlog Element befinden die bestellt werden können. Sofern dies der Fall wird eine Bestellung getätigt, falls nicht bleibt das Element im Backlog enthalten. 
+Wir definieren in unserem Backlog Service eine Methode welche periodisch abgearbeitet wird, wobei erst nach einer Sekunde nachdem die Verarbeitung abgeschlossen ist eine neue Verarbeitung startet. Unsere Methode überprüft ob sich in unseren Backlog Element befinden die bestellt werden können. Sofern dies der Fall ist wird eine Bestellung getätigt, falls nicht bleibt das Element im Backlog enthalten. 
 
      @Scheduled(fixedDelay = 1000)
      public void processBacklog() {
@@ -529,9 +530,9 @@ Wir definieren in unserem Backlog Service eine Methode welche periodisch abgearb
      }
 
 # Fazit
-Mit Enterprise Integration Patterns definiert einen Katalog von Müstern für ein erweiterbare Architektur im Sinne Event Driven Architecture (EDA).
-Damit können Systeme flexibler und skalierbare umsetzen. Es kostet aber auch was und zwar Komplexität und Mehraufwand.
-Mit den beiden hier vorgestellten Frameworks Spring Integration und Camel  kann man den Mehraufwand deutlich reduzieren und die Komplexität den Frameworks zum Teil überlassen.
+Die Enterprise Integration Patterns definieren einen Katalog von Mustern für ein erweiterbare Architektur im Sinne Event Driven Architecture (EDA).
+Damit können Systeme flexibler und skalierbar umgesetzt werden, was jedoch Komplexität und Mehraufwand zur Folge hat.
+Mit den beiden hier vorgestellten Frameworks Spring Integration und Camel kann man den Mehraufwand deutlich reduzieren und die Komplexität den Frameworks zum Teil überlassen.
 
 Beide Frameworks sind ausgereift, gut Dokumentiert und vielfältig erprobt.
 
@@ -543,3 +544,4 @@ Die Investition in ein solches Framework ist ab mittlere Systemgröße zu empfeh
 [si]: http://projects.spring.io/spring-integration/ "Spring Integration"
 [sb]: http://projects.spring.io/spring-batch/ "Spring Batch"
 [cxf]: http://cxf.apache.org/ "Apache CXF: An Open-Source Services Framework"
+
