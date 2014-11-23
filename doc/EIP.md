@@ -1,17 +1,38 @@
 # Zusammenfassung
-Kein IT-System kommt ohne Interaktion mit anderen Systemen aus, sei es via Web-Services oder auch durch Import/Export von Dateien in CSV, XML oder sonstige Formaten.
+Der Trend weg von monolitischen in Richtung modularen Systemen nimmt spätestens mit [Microservices] [microsvc] richtig Schwung. Bei Microservices geht es kurz darum dass kleinere Systeme zusammenarbeiten um eine Anwendung zur Verfügung zu stellen.
 
-Für die meisten Technologien gibt es entweder Unterstützung in Form von Standards wie JAX-WS, für Web-Services, oder Framework-Lösungen  wie Spring Batch, für CSV Verarbeitung. Für die Interaktion zwischen und in IT-System beschreibt das Standardwerk [Enterprise Integration Patterns] [eip] Ansätze um Skalierung und Erweiterbarkeit zu gewährleisten. 
+Bei Microservices kann jedes System ein eigenes Architektur definieren. Falls die einzelne Systeme alle von gleichen Unternehmer entwickelt werden, kann es auf Grund von gemeinsammen Komponenten und Wissenstranfer vorteilhaft sein bei einigen Grundprinzipen sich zu einigen.
 
+Bei der Integration der einzelnen Systeme stellt sich einige Fragen. 
+
+ - Wann ist synchrone Kommunikation erforderlich bzw. wann ist eine Entkopllung mittels asynchrone Aufrufe sinnvoll. 
+ - Bei asynchrone Aufrufe wird eine zuverlässige Zwischenablage benötigt um Nachrichten zu puffern falls der Empfänger gerade nicht verfügbar ist.
+  
+Weiters kommt kein IT-System kommt ohne Interaktion mit externen Systemen aus, sei es via Web-Services oder auch durch Import/Export von Dateien in CSV, XML oder sonstige Formaten.
+
+Für die Interaktion zwischen "internen" Systeme wie bei den Micrsoervices als auch externen findet man im Buch [Enterprise Integration Patterns] [eip] Lösungsmustern.
+
+Bei den Integrationsmustern wird zuerst 4 mögliche Arten(Styles) beschrieben:
+
+ - File Transfer
+ - Shared Database
+ - Remote Procedure Invocation
+ - Messaging
+ 
+File Transfer ist relative einfach zu implementieren. Es ist jedoch nicht möglich synchrone Kommunikation damit zu implementieren.
+ 
+Shared Database kann für einfache Fälle überlegt werden. Mit wachsenden Anzahl beteiligten Systeme wir die enge Kopplung über Datenbank zu Problemen führen.
+ 
+Mit Remote Procedure Invocation und Messaging stehen skalierbare Lösungen für synchrone bzw. asynchrone Kommunikation uns zur Verfügung.
+ 
+Die feine Sache ist, dass der Art der Integration durch Message Channels für die fachliche Implementierung abstrahiert wird.
+ 
 Diese Enterprise Integration Patterns wurden in den Frameworks [Camel] [camel] und [Spring Integration] [si] umgesetzt und werden hier anhand eines Praxisbeispiels, eines Fahrradshops, erklärt und durchleuchtet. 
  
-Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und typische Integrationsszenarieren lösen kann:
+Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und typische Integrationsszenarieren lösen kann.
 
- - Lieferscheinverarbeitung
- - Lagerverwaltung
- - Bestellsystem
- - Benachrichtigungssystem
 
+ 
 # Domainmodell
 ![EIP im Fahrradshop](eip.png)
 
@@ -539,6 +560,7 @@ Beide Frameworks sind ausgereift, gut Dokumentiert und vielfältig erprobt.
 Die Investition in ein solches Framework ist ab mittlere Systemgröße zu empfehlen, einmal vorhanden und verstanden, werden Sie eine Vielzahl von Anwendungsfälle und Möglichkeiten entdecken und schätzen. 
 
 # Referenzen
+[microsvc]: http://martinfowler.com/articles/microservices.html "Microservices, Martin Fowler"
 [eip]: http://www.enterpriseintegrationpatterns.com/ "Enterprise Integration Patterns, Gregor Hohpe & Bobby Woolf"
 [camel]: http://camel.apache.org/ "Apache Camel"
 [si]: http://projects.spring.io/spring-integration/ "Spring Integration"
