@@ -1,6 +1,7 @@
 \documentclass[12pt,a4paper,ngerman]{article}
 \usepackage[top=2.5cm, bottom=2cm, left=2.5cm, right=2.5cm]{geometry} 
 \usepackage[utf8x]{inputenc}
+\usepackage{ngerman}
 \usepackage{lmodern}
 \usepackage{listings}
 \usepackage{amssymb,amsmath}
@@ -45,7 +46,9 @@
 \setlength{\emergencystretch}{3em}  % prevent overfull lines
 \setcounter{secnumdepth}{0}
 
-\author{}
+\title{Enterprise Integration Patterns in dem Praxis mit Apache Camel
+und Spring Integration}
+\author{Anders Malmborg und Michael Haslgrübler}
 \date{}
 
 \lstset{ %
@@ -69,39 +72,116 @@ escapeinside={\%*}{*)}          % if you want to add a comment within your code
 
 \begin{document}
 
-\section{Zusammenfassung}
+\maketitle
 
-Kein IT-System kommt ohne Interaktion mit anderen Systemen aus, sei es
-via Web-Services oder auch durch Import/Export von Dateien in CSV, XML
-oder sonstige Formaten.
+\section{Einleitung}
 
-Für die meisten Technologien gibt es entweder Unterstützung in Form von
-Standards wie JAX-WS, für Web-Services, oder Framework-Lösungen wie
-Spring Batch, für CSV Verarbeitung. Für die Interaktion zwischen und in
-IT-System beschreibt das Standardwerk {[}Enterprise Integration
-Patterns{]} {[}eip{]} Ansätze um Skalierung und Erweiterbarkeit zu
-gewährleisten.
+Derzeit zeichnet sich ein Trend weg von monolithischen in Richtung
+modularen Systemen ab, wurde bisher der gesamte Anwendungslogik von
+einem System zur Verfügung gestellt, werden zunehmend fachliche
+Teilprozesse in sowohl Architektur, Entwicklung und Betrieb geteilt
+betrachtet. Für den Endanwender erscheint es als ein Produkt, die
+``Nahtstellen'' sind nicht sichtbar. Mit {[}Microservices{]}
+{[}microsvc{]} haben einige Unternehmen wie Amazon oder Netflix für
+Aufmerksamkeit gesorgt. Diese modularen Systeme versprechen Vorteile vor
+allem in der Skalierbarkeit und Unabhängigkeit bei der Entwicklung der
+Teilprodukte.
 
-Diese Enterprise Integration Patterns wurden in den Frameworks
-{[}Camel{]} {[}camel{]} und {[}Spring Integration{]} {[}si{]} umgesetzt
-und werden hier anhand eines Praxisbeispiels, eines Fahrradshops,
-erklärt und durchleuchtet.
+Obwohl Microservices es nicht zwangsweise benötigten, setzt sich auch
+ein weiteres Architekturmuster für die Skalierbarkeit durch, nämlich die
+{[}ereignisbasierte Architektur{]} {[}ea{]} wo Verarbeitungsschritte
+asynchron und parallel erfolgen.
+
+Mit oder ohne modularer und/oder ereignisbasierter Architektur kommt man
+heutzutage an der Integration mit externen Systemen nicht vorbei, es
+werden synchrone Schnittstellen über WebServices als auch der asynchrone
+Datenaustausch in diversen Produkten nicht mehr wegzudenken, z.B.: Login
+via Facebook, Rechnungsmeldung zum Finanzamt, \ldots{}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{systems.png}
+\caption{Interne und externe Systeme}
+\end{figure}
+
+Für die Interaktion zwischen internen als auch externen Systemem findet
+man im Buch {[}Enterprise Integration Patterns{]} {[}eip{]}
+Lösungsmustern, welche für eine Vielzahl von Problemen die durch diese
+Interaktion entstehen angewandt werden. Diese Enterprise Integration
+Patterns wurden in den Frameworks {[}Apache Camel{]} {[}camel{]} und
+{[}Spring Integration{]} {[}si{]} umgesetzt und werden in diesem Artikel
+anhand eines Praxisbeispiels erklärt und durchleuchtet.
 
 Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen
-kann und typische Integrationsszenarieren lösen kann:
+kann und typische Integrationsszenarien lösen kann.
 
-\begin{itemize}
-\item
-  Lieferscheinverarbeitung
-\item
-  Lagerverwaltung
-\item
-  Bestellsystem
-\item
-  Benachrichtigungssystem
-\end{itemize}
+\section{Enterprise Integration Patterns}
 
-\section{Domainmodell}
+Die wichtigsten und häufigsten Integrationsmustern sind folgende 4 Arten
+(Styles): File Transfer, Shared Database, Remote Procedure
+Invocation/Call (RPC) und Messaging.
+
+Im fiktiven Fahrradshop werden drei der vier Integrationsmuster (File
+Transfer, Remote Procedure Invocation und Messaging) anhand vom
+praxisorientierten Problemen eingesetzt.
+
+\subsection{File Transfer und Shared Database}
+
+File Transfers sind relativ einfach zu implementieren, bietet aber keine
+Möglichkeit synchrone Kommunikation damit zu implementieren.
+
+Shared Database kann für einfache Fälle überlegt werden. Mit wachsenden
+Anzahl der beteiligten Systeme wird die enge Kopplung über Datenbank
+aber zu Problemen führen und es eignet sich außerdem oft nicht für die
+Kommunikation über Unternehmensgrenzen hinweg.
+
+\subsection{Remote Procedure Invocation und Messaging}
+
+Mit Remote Procedure Invocation und Messaging stehen anderseits
+skalierbare Lösungen für synchrone bzw. asynchrone Kommunikation zur
+Verfügung. Durch sogenannte Message Channels wird die Kommunikationsart
+abstrahiert und von der fachlichen Implementierung abgekoppelt. Das
+heißt das sofern sich die Anforderung ändern auch die Möglichkeit
+besteht auf Konfigurationsbasis den Kommunikationsmechansismus zu ändern
+ohne sein Produkt neu entwickeln zu müssen.
+
+Messaging wird verwendet um zuverlässig und zeitnah Daten zwischen den
+Services auszutauschen. Bei asynchronen Schnittstellen werden die Daten
+über einen kürzeren oder längeren Zeitraum zwischengespeichert. Damit
+wird das Gesamtsystem fehlertoleranter - da nicht alle Services
+gleichzeitig zur Verfügung stehen müssen.
+
+\begin{figure}[htbp]
+\centering
+\includegraphics{messaging.png}
+\caption{Messaging}
+\end{figure}
+
+Messages werden über Channels geschickt. Der Absender und Empfänger
+verbinden sich mit dem Channel. Falls es ein Absender und genau einen
+Empfänger gibt wird ein Point-to-Point Channel verwendet, ansonsten, bei
+mehreren Empfänger, für einen Message bietet sich der Publish-Subscribe
+Channel an.
+
+Der Empfänger kann auch zur Laufzeit entschieden werden. In unserem
+Beispiel sollte nach der Verarbeitung des Auftrages eine Nachricht an
+den Kunden verschickt werden. Je nach Kunde sollte entweder eine SMS
+oder eine Mail verschickt werden. Die Entscheidung ob das Message zum
+SmsService oder MailService weitergereicht werden sollte, trifft hier
+ein Content-Based Router.
+
+
+\begin{figure}[htbp]
+\begin{center}
+\Oldincludegraphics[height=10cm]{channels.png}
+\end{center}
+\caption{Channels}
+\end{figure}
+
+Nach diesem sehr gekürzten Übersicht von Enterprise Integration Patterns
+stellen wir jetzt die Anwendung vor.
+
+\section{Architekturmodell des Shops}
 
 \begin{figure}[htbp]
 \centering
@@ -115,41 +195,61 @@ vorhandene Artikel werden ausgebucht und die fehlende Menge wird
 nachbestellt. Die Lieferanten senden Lieferscheine, die als
 Lagereingänge behandelt werden.
 
-Das Domainmodell in Kürze:
+Das Architekturmodell in Kürze:
 
 \begin{itemize}
 \item
-  OrderService: verwaltet Bestellungen.
+  StockService: verwaltet Lagerbestände. Lieferscheine von externen
+  Lieferanten werden als CVS-Dateien eingespielt.
 \item
-  BacklogService: bestellt auf Lager fehlende Artikeln beim Lieferanten.
+  OrderService: verwaltet Bestellungen. Stellt REST basierte
+  Schnittstellen für eine Browserapplikation zur Verfügung.
 \item
-  StockService: verwaltet Lagerbestände.
+  BacklogService: bestellt auf Lager fehlende Artikeln bei externen
+  Lieferanten die SOAP Webservices dafür zur Verfügung stellen.
 \item
   Sms- bzw. MailService: sendet Bestellbestätigungen an den Kunden über
   SMS oder Mail.
 \end{itemize}
 
-\section{Use Cases}
+Die Services werden so entwickelt, dass keine enge Kopplung besteht. Sie
+können damit in separaten Laufzeitumgebungen auf unterschiedlichen
+Servern betrieben werden.
 
-\subsection{CSV Import von Bestellungen}
+\subsection{Use Cases}
 
-Die Bestellaufträge werden als CSV Dateien aus einem Verzeichnis
-gelesen. Ein Auftrag besteht aus Auftrags-Kopf(ORDER) und
-Auftrags-Positionen(ITEM). Folgend ein Beispiel im CSV Format:
+\paragraph{CSV Import von Lieferscheine}
+
+Die Lieferscheine werden als CSV Dateien aus einem Verzeichnis gelesen.
+Eine Zeile beinhaltet Typ, Bezeichnung, Teilenummer, Einkaufspreis sowie
+Anzahl gelieferte Teile:
 
 \begin{lstlisting}
-ORDER;Bike support;1
-ITEM;FRAME;Road bike frame 60 cm;1935182366
-ITEM;DRIVE;Shimano HG LX;1935182439
-ORDER;Bike specialists;2
-ITEM;WHEEL;Spoke 28 inches;098876
+FRAME; Road bike frame 60 cm;1935182366;103.95;2
+DRIVE; Shimano HG LX;1935182439;31.85;6
 \end{lstlisting}
 
 Die Verarbeitungsschritte:
 
 \begin{enumerate}[1.]
 \item
-  CSV Datei lesen, in Einzelaufträge aufteilen (1 ORDER, n ITEM)
+  Zeilenweise einlesen
+\item
+  In Typ, Bezeichnung u.s.w aufteilen
+\item
+  Lagerbestände korrigieren
+\end{enumerate}
+
+\paragraph{Bestellabwicklung}
+
+Der Kunde stellt eine Warenkorb im Browser zusammen. Der Kunde sollte
+nach der Bestellannahme eine Bestätigung erhalten. In einer
+Systemkonfiguration ist hinterlegt ob der Kunde mittels SMS oder Mail
+die Bestätigung erhalten soll. Senden der Bestätigung sollte asynchron
+von der Verarbeitung stattfinden da die Bestätigung nicht so hohe
+Priorität wie (neue) Bestellungen hat.
+
+\begin{enumerate}[1.]
 \item
   Prüfen ob bestellte Artikeln auf Lager sind:
 
@@ -159,16 +259,40 @@ Die Verarbeitungsschritte:
   \item
     Andernfalls den Lagerbestand reduzieren
   \end{itemize}
+\item
+  Bestätigung senden
 \end{enumerate}
 
-Eine weitere nicht funktionale Anforderung ist, dass der OrderService
-nicht den BacklogService ``kennen'' sollte. Diese lose Kopplung wird es
-ermöglichen die Systeme in die Zukunft getrennt zu betreiben.
+\paragraph{Nachschub fehlende Artikeln}
 
-\subsubsection{Java Service Implementierungen}
+Sofern bestellte Artikeln nicht lagernd sind, werden sie mittels
+Webservices von externen Lieferanten nachbestellt.
+
+\section{Umsetzung mit Spring Integration und Channel}
+
+Beide Frameworks unterstützen die Mustern von Enterprise Integration
+Patterns und beziehen sich auch auf das Buch in der Dokumentation.
+Fallweise werden andere Namen verwendet, Spring Integration verwendet
+Beispielsweise Direct Channel statt Point-to-Point Channel.
+
+Für die asynchrone Austausch von Nachrichten verwenden wir {[}Apache
+ActiveMQ{]} {[}amq{]}. Beide Frameworks integrieren problemlos mit
+ActiveMQ.
+
+\subsection{Anmerkung zu der Konfiguration von Spring Integration und
+Apache Camel}
+
+Spring Integration unterstützt ``klassische'' Spring XML Konfiguration
+als auch Annotationen. Apache Camel unterstützt Spring Konfiguration mit
+oder ohne Annotationen. Weiter kann Camel mit Java DSL statt oder
+zusätzlich zur Spring XML Konfiguration verwendet werden. Zwecks
+Vergleichbarkeit der beiden Frameworks wird hier immer nur Spring XML
+Konfiguration verwendet.
+
+\subsection{Java Service Implementierungen}
 
 Die Implementierungen der Services sind völlig unwissend von Spring
-Integration bzw. Camel. Hier ein Teil der Implementierung von
+Integration bzw. Apache Camel. Hier ein Teil der Implementierung von
 OrderService:
 
 public Backlog handleOrder(Order order) \{
@@ -202,17 +326,7 @@ public Backlog handleOrder(Order order) \{
 In der Implementierung ist zu sehen, dass keine Verbindung mit dem
 BacklogService besteht.
 
-\subsubsection{Anmerkung zu der Konfiguration von Spring Integration und
-Camel}
-
-Spring Integration unterstützt ``klassische'' Spring XML Konfiguration
-als auch Annotationen. Camel unterstützt Spring Konfiguration mit oder
-ohne Annotationen. Weiter kann Camel mit Java DSL statt oder zusätzlich
-zur Spring XML Konfiguration verwendet werden. Zwecks Vergleichbarkeit
-der beiden Frameworks wird hier immer nur Spring XML Konfiguration
-verwendet.
-
-\subsubsection{Umsetzung mit Spring Integration}
+\paragraph{CSV Import von Lieferscheine mit Spring Integration}
 
 Da in der Spring Familie ausgereifte Funktionalität für CSV Verarbeitung
 in Form vom {[}Spring Batch{]} {[}sb{]} vorhanden ist, gibt es keine
@@ -220,45 +334,23 @@ eigene Implementierung für CSV in Spring Integration. Die Konfiguration
 für Spring Batch
 
 \begin{lstlisting}
-<bean id="orderCsvReader" class="eip.spring.integration.OrderFlatFileItemReaderDelegate"
+<bean id="deliveryNoteCsvReader" class="org.springframework.batch.item.file.FlatFileItemReader"
     scope="prototype">
-    <constructor-arg>
-        <bean class="org.springframework.batch.item.file.FlatFileItemReader">
-            <property name="encoding" value="UTF-8" />
-            <property name="lineMapper">
+    <property name="encoding" value="UTF-8" />
+    <property name="lineMapper">
+        <bean class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
+            <property name="lineTokenizer">
                 <bean
-                    class="org.springframework.batch.item.file.mapping.DefaultLineMapper">
-                    <property name="lineTokenizer">
-                        <bean
-                            class="org.springframework.batch.item.file.transform.PatternMatchingCompositeLineTokenizer">
-                            <property name="tokenizers">
-                                <map>
-                                    <entry key="ORDER*">
-                                        <bean
-                                            class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
-                                            <property name="delimiter" value=";" />
-                                            <property name="names" value="recType, customerName, orderNumber" />
-                                        </bean>
-                                    </entry>
-                                    <entry key="ITEM*">
-                                        <bean
-                                            class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
-                                            <property name="delimiter" value=";" />
-                                            <property name="names" value="recType, itemType,name,number" />
-                                        </bean>
-                                    </entry>
-                                </map>
-                            </property>
-                        </bean>
-                    </property>
-                    <property name="fieldSetMapper">
-                        <bean
-                            class="org.springframework.batch.item.file.mapping.PassThroughFieldSetMapper" />
-                    </property>
+                    class="org.springframework.batch.item.file.transform.DelimitedLineTokenizer">
+                    <property name="delimiter" value=";" />
+                    <property name="names" value="itemType,name,number,price,quantity" />
                 </bean>
             </property>
+            <property name="fieldSetMapper">
+                <bean class="eip.spring.integration.StockItemFieldSetMapper" />
+            </property>
         </bean>
-    </constructor-arg>
+    </property>
 </bean>
 \end{lstlisting}
 
@@ -266,172 +358,83 @@ für Spring Batch
 \item
   DelimitedLineTokenizer: teilt jede Zeile in einzelne Felder.
 \item
-  PatternMatchingCompositeLineTokenizer: entscheidet auf Grund des
-  Names(ORDER oder ITEM) welcher DelimitedLineTokenizer zu verwenden
-  ist.
+  DefaultLineMapper: lässt den DelimitedLineTokenizer die Zeile zerlegen
+  und StockItemFieldSetMapper daraus einen Objekt erzeugen
 \item
   FlatFileItemReader: liest die CSV Datei zeilenweise.
 \end{itemize}
 
-Spring Batch benötigt ein wenig Hilfe da es sich um einen so genannten
-Multi-Line Records handelt. Die Implementierung dafür ist in
-OrderFlatFileItemReaderDelegate
+Da jetzt Spring Batch so weit konfiguriert ist, folgt nun Spring
+Integration. Der \emph{inbound-channel-adapter} überwacht einen
+Verzeichnis, falls Dateien gefunden werden, werden sie auf die Reise auf
+den Channel \emph{csvDeliveryNotesChannel} geschickt.
 
 \begin{lstlisting}
-public Order read() throws ... {
-    FieldSet fieldSet = delegate.read();
-    Order order = null;
-    while (fieldSet != null) {
-        if (nextOrder != null)
-            order = nextOrder;
-        String prefix = fieldSet.readString(0);
-        if (prefix.equals("ORDER"))
-        {
-            if (order != null)
-            {
-                nextOrder = new Order(fieldSet.readString("customerName"), fieldSet.readString("orderNumber")); 
-                return order;
-            }
-            else
-                order = new Order(fieldSet.readString("customerName"), fieldSet.readString("orderNumber"));
-        }
-        else if (prefix.equals("ITEM"))
-        {
-            Assert.notNull(order, "order must not be null");
-            ItemType itemType;
-            // Map ItemType excluded here
-            Item item = new Item(itemType, fieldSet.readString("name"), fieldSet.readString("number"));
-            order.getOrderItems().add(new OrderItem(item));
-        }
-        else
-            throw new ParseException("No record matching "+prefix);
-        fieldSet = delegate.read();
-    }
-    return order;
-}
+<int-file:inbound-channel-adapter id="deliveryNotesChannelAdapter"
+    directory="file:../eip-common/src/main/resources/deliverynotes" channel="csvDeliveryNotesChannel">
+    <int:poller fixed-rate="1000" />
+</int-file:inbound-channel-adapter>
 \end{lstlisting}
 
-Da jetzt Spring Batch so weit konfiguriert ist, folgt nun Spring
-Integration:
+Ein "service-activator* horcht auf den \emph{csvDeliveryNotesChannel}
+und leitet die Messages(hier Dateien) an den Spring Bean
+\emph{deliveryNoteCsvImport} weiter.
 
 \begin{lstlisting}
-<int-file:inbound-channel-adapter id="orderChannelAdapter"
-    directory="file:../eip-common/src/main/resources/orders" channel="csvOrderChannel">
-    <int:poller fixed-rate="1000"/>
-</int-file:inbound-channel-adapter>
+<int:service-activator input-channel="csvDeliveryNotesChannel"
+    ref="deliveryNoteCsvImport" method="importCsv" />
+\end{lstlisting}
 
-<int:channel id="csvOrderChannel" />
+Die Spring Konfiguration der verwendete Beans:
 
-<int:service-activator input-channel="csvOrderChannel"
-    ref="orderCsvImport" />
-
-<bean id="orderCsvImport" class="eip.spring.integration.OrderCsvImport">
-    <constructor-arg name="reader" ref="orderCsvReader" />
-    <constructor-arg name="channel" ref="orderServiceChannel" />
+\begin{lstlisting}
+<bean id="deliveryNoteCsvImport" class="eip.spring.integration.DeliveryNoteCsvImport"
+    scope="prototype">
+    <constructor-arg name="reader" ref="deliveryNoteCsvReader" />
+    <constructor-arg name="writer" ref="stockWriterAdapter" />
 </bean>
 
-<int:channel id="orderServiceChannel" />
-<int:chain input-channel="orderServiceChannel">
-    <int:service-activator ref="orderService"  method="handleOrder"/>
-    <int:service-activator ref="backlogService" method="saveBacklogItems"/>
-</int:chain>
+<bean id="stockWriterAdapter"
+    class="org.springframework.batch.item.adapter.ItemWriterAdapter">
+    <property name="targetObject" ref="stockService" />
+    <property name="targetMethod" value="addStockItem" />
+</bean>
 \end{lstlisting}
 
-\begin{itemize}
-\item
-  inbound-channel-adapter: überwacht ein Verzeichnis. Wenn eine Datei
-  entdeckt wird, wird sie in den \emph{csvOrderChannel} gesteckt.
-\item
-  service-activator: nimmt einen Nachricht - hier eine Datei - aus
-  \emph{csvOrderChannel} und verarbeitet sie zeilenweise mittels den
-  o.g. \emph{orderCsvReader}. Das vom \emph{orderCsvReader} erzeugte
-  \emph{Order} Objekt wird als Message ins \emph{orderServiceChannel}
-  übergeben
-\item
-  chain: eine Kette wird hier verwendet um die Anzahl von expliziten
-  input-/output-channels zu reduzieren. Eine \emph{Order} wird aus
-  \emph{orderServiceChannel} genommen und verarbeitet und als Ergebnis
-  wird ein \emph{Backlog} Objekt erzeugt und den \emph{BacklogService}
-  weitergegeben.
-\end{itemize}
+Die Java-Implementierung ist minimal, Spring Integration hier
+unterstützt von Spring Batch, muss lediglich konfiguriert werden.
 
-Es ist zwar einiges an Konfiguration vorzunehmen, jedoch ist die
-Flexibilität gegenüber einer klassischen Java-Implementierung wesentlich
-höher.
-
-\subsubsection{Umsetzung mit Camel}
+\paragraph{Umsetzung mit Apache Camel}
 
 Camel hat eine hohe Anzahl von Komponenten(Components). Diese werden in
-Form von URIs konfiguriert:
+Form von URIs konfiguriert. Wir verwenden hier das File Component um den
+Verzeichnis für neue Dateien zu überwachen. Der Splitter teilt die Datei
+in einzelne Zeilen auf und zerlegt diese in Felder. Der Processor
+\emph{csvToStockItemProcessor} erzeugt aus die Felder einen
+StockItem-Objekt. Zum Schluss werden die Objekte vom Spring Bean
+\emph{stockService} auf der Datenbank gespeichert.
 
 \begin{lstlisting}
-<camel:camelContext id="orderImport">
+<camel:camelContext id="deliveryNoteImport">
     <camel:route>
-        <camel:from
-            uri="file://../eip-common/src/main/resources/orders?consumer.delay=1000&noop=true" />
+        <camel:from uri="file://../eip-common/src/main/resources/deliverynotes?consumer.delay=1000&noop=true" />
         <camel:split streaming="true">
-            <camel:tokenize token="ORDER" xml="false" />
+            <camel:tokenize token="\n" xml="false" />
             <camel:unmarshal>
                 <camel:csv delimiter=";" />
             </camel:unmarshal>
-            <camel:process ref="csvToOrderProcessor"/>
-            <camel:bean ref="orderService" />
-            <camel:bean ref="backlogService"/>
+            <camel:process ref="csvToStockItemProcessor" />
+            <camel:bean ref="stockService" method="addStockItem"/>
         </camel:split>
     </camel:route>
 </camel:camelContext>
 \end{lstlisting}
 
-\begin{itemize}
-\item
-  from: die File-Komponente liest vom Verzeichnis eine Datei.
-\item
-  split: die Datei wird aufgeteilt in ORDER mit ITEMs.
-\item
-  unmarshal: die CSV Komponente wird hier verwendet.
-\item
-  process: der \emph{CsvToOrderProcessor} erzeugt aus ORDER/ITEM Zeilen
-  ein \emph{Order} Objekt
-\item
-  bean: \emph{OrderService} verarbeitet die \emph{Order} und erzeugt ein
-  \emph{Backlog} Objekt welches dann den \emph{BacklogService} übergeben
-  wird.
-\end{itemize}
+Die Konfiguration für CSV Import ist bei Apache Camel um einiges
+kompakter.
 
-Die Einzige noch notwendige Implementierung ist der CsvToOrderProcessor:
-
-\begin{lstlisting}
-public void process(Exchange exchange) throws Exception {
-    String csvString = exchange.getIn().getBody(String.class);
-    //[[, Bike support, 1], [ITEM, FRAME, Road bike frame 60 cm, 1935182366], [ITEM, DRIVE, Shimano HG LX, 1935182439]]
-    List<String> recs = Arrays.asList(csvString.split("\\],"));
-    String orderString  = recs.get(0).replace("[", "");
-    orderString = orderString.replace("]", "");
-    List<String> orderStrings = Arrays.asList(orderString.split(","));
-    String customerName = orderStrings.get(1).trim();
-    String orderNumber = orderStrings.get(2).trim();
-
-    Set<OrderItem> orderItems = new HashSet<OrderItem>();
-    for (int i = 1; i < recs.size(); i++) {
-        orderString  = recs.get(i).replace("[", "");
-        orderString = orderString.replace("]", "");
-        orderStrings = Arrays.asList(orderString.split(","));
-        Assert.isTrue(orderStrings.size() == 4);
-        ItemType itemType = ItemType.OTHER;
-        ItemType itemType;
-        // Map ItemType excluded here
-        OrderItem orderItem = new OrderItem(new Item(itemType, orderStrings.get(2).trim(), orderStrings.get(3).trim()));
-        orderItems.add(orderItem);
-    }
-    Order order = new Order(customerName, orderNumber, orderItems);
-    exchange.getIn().setBody(order);
-}
-\end{lstlisting}
-
-Auch hier gelingt es mit Spring Konfiguration und wenig Implementierung
-die Services zu verdrahten.
-
-\subsection{Entkopplung Bestellbestätigung mittels JMS}
+\subsection{Entkopplung der Bestellbestätigung mittels Apache
+ActiveMQ}
 
 Der Kunde sollte nach der Bestellannahme eine Bestätigung erhalten. In
 einer Systemkonfiguration ist hinterlegt ob der Kunde mittels SMS oder
@@ -447,7 +450,15 @@ Mail Versand beschäftigt werden.
 
 ActiveMQ wird für beide Implementierung gleich konfiguriert:
 
-\subsubsection{Umsetzung mit Spring Integration}
+\begin{lstlisting}
+<amq:broker useJmx="false" persistent="false">
+    <amq:transportConnectors>
+        <amq:transportConnector uri="vm://localhost" />
+    </amq:transportConnectors>
+</amq:broker>
+\end{lstlisting}
+
+\paragraph{Umsetzung mit Spring Integration}
 
 Zuerst wird die Bestellbestätigung \emph{Notification} in entweder einer
 \emph{SmsNotification} oder einer \emph{MailNotification} umgewandelt.
@@ -457,23 +468,22 @@ Dafür wird einen \emph{Transformer} implementiert:
 public Message<?> transform(Message<?> message) {
     Notification notification = (Notification) message.getPayload();
     Notification outNotification;
-    if (notification.getCustomer().equals("customerWithSms"))
+    if (customerConfig.getContactChannel(notification.getCustomer()).equals(SMS))
         outNotification = new SmsNotification(notification.getCustomer(),
-                notification.getMessage(), "smsNumber");
+                                              notification.getMessage(), 
+                                              customerConfig.getSmsNumber(notification.getCustomer()));
     else
         outNotification = new MailNotification(notification.getCustomer(),
-                "mailAddress", "mailSubject", notification.getMessage());
+                                               notification.getMessage(), 
+                                               customerConfig.getMailAddressNumber(notification.getCustomer()),
+                                               customerConfig.getMailSubject(notification.getCustomer()));
     return MessageBuilder.withPayload(outNotification).build();
 }
 \end{lstlisting}
 
-Die Konfiguration ob der Kunde SMS oder Mail erhalten soll, ist hier der
-Einfachheit halber im Namen des Kunden enthalten.
-
 Die Spring Konfiguration schaut wie folgt aus:
 
 \begin{lstlisting}
-<int:channel id="transformerChannel" />
 <int:transformer id="notificationTransformer" input-channel="transformerChannel"
     method="transform" output-channel="routingChannel">
     <bean class="eip.spring.integration.NotificationTransformer" />
@@ -484,7 +494,6 @@ Das Versenden erfolgt durch den Sms- bzw. MailService. Dazu wird ein
 \emph{Router} verwendet:
 
 \begin{lstlisting}
-<int:channel id="routingChannel" />
 <int:payload-type-router input-channel="routingChannel">
     <int:mapping type="eip.common.services.SmsNotification"
         channel="smsOutQueue" />
@@ -496,18 +505,15 @@ Das Versenden erfolgt durch den Sms- bzw. MailService. Dazu wird ein
 Die Art der Messages, \emph{SmsNotification} oder
 \emph{MailNotification} entscheidet über den zu verwendenden Channel.
 
-Zum Schluss die Konfiguration für die JMS Anbindung . hier für Sms:
+Zum Schluss die Konfiguration für die JMS Anbindung . hier für SMS:
 
 \begin{lstlisting}
-<int:channel id="smsOutQueue" />
 <int-jms:outbound-channel-adapter id="smsJms"
     channel="smsOutQueue" destination="smsJmsQueue" />
 
 <bean id="smsJmsQueue" class="org.apache.activemq.command.ActiveMQQueue">
     <constructor-arg value="queue.sms" />
 </bean>
-
-<int:poller id="poller" default="true" fixed-delay="1000" />
 
 <int-jms:message-driven-channel-adapter
     id="smsIn" destination="smsJmsQueue" channel="smsInQueue" />
@@ -524,9 +530,6 @@ Zum Schluss die Konfiguration für die JMS Anbindung . hier für Sms:
 \item
   smsJmsQueue: definiert ein ActiveMQ Queue \emph{queue.sms}.
 \item
-  poller: definiert wie oft der Empfänger, der
-  \emph{jms:message-driven-channel-adapter} pollen soll.
-\item
   jms:message-driven-channel-adapter nimmt den Message vom ActiveMQ und
   gibt es an den \emph{service-activator}.
 \item
@@ -534,7 +537,7 @@ Zum Schluss die Konfiguration für die JMS Anbindung . hier für Sms:
   SmsNotification.
 \end{itemize}
 
-\subsubsection{Umsetzung mit Camel}
+\paragraph{Umsetzung mit Camel}
 
 Wie beim Spring Integration wird zuerst die \emph{Notification} in einen
 \emph{SmsNotification} bzw. \emph{MailNotification} umgewandelt. Mit
@@ -544,15 +547,17 @@ Camel wird es als ein \emph{Processor} implementiert:
 public void process(final Exchange exchange) throws Exception {
     Notification notification = exchange.getIn()
             .getBody(Notification.class);
-    if (notification.getCustomer().equals("customerWithSms"))
+    if (notification.getContactChannel(notification.getCustomer()).equals(SMS))
         exchange.getIn().setBody(
                 new SmsNotification(notification.getCustomer(),
-                        notification.getMessage(), "smsNumber"));
+                                    notification.getMessage(), 
+                                    customerConfig.getSmsNumber(notification.getCustomer()));
     else
         exchange.getIn().setBody(
                 new MailNotification(notification.getCustomer(),
-                        "mailAddress", "mailSubject", notification
-                                .getMessage()));
+                                     notification.getMessage(), 
+                                     customerConfig.getMailAddressNumber(notification.getCustomer()),
+                                     customerConfig.getMailSubject(notification.getCustomer()));
 }
 \end{lstlisting}
 
@@ -612,7 +617,7 @@ Die Spring Konfiguration dazu:
 </bean>
 \end{lstlisting}
 
-\subsection{Lieferantenbestellung mit SOAP Web Service}
+\subsection{Nachschub fehlende Artikeln mit SOAP Web Service}
 
 Sofern eine Bestellung nicht mit dem Lagerbestand abgedeckt werden kann,
 werden die Teile im Backlog abgelegt und es wird eine Bestellung beim
@@ -622,54 +627,19 @@ auch Spring setzen auf eine Generierung mit Java Code auf. Die Basis für
 diese Generierung ist die Beschreibung des Web Services in der Web
 Service Description Language (WSDL).
 
-\subsubsection{Umsetzung mit Spring Integration}
+\paragraph{Umsetzung mit Spring Integration}
 
 Spring empfiehlt eine Code-Generierung mit dem Maven jaxb2-plugin, die
 WSDL-Datei des WebServices wird definiert und in welchen Package die
-generierten Paketen liegen sollen.
-
-\begin{lstlisting}
- <build>
-    <plugins>
-        <plugin>
-            <groupId>org.jvnet.jaxb2.maven2</groupId>
-            <artifactId>maven-jaxb2-plugin</artifactId>
-            <executions>
-                <execution>
-                    <goals>
-                        <goal>generate</goal>
-                    </goals>
-                </execution>
-            </executions>
-            <configuration>
-                <schemaLanguage>WSDL</schemaLanguage>
-                <generatePackage>parts.eip</generatePackage>
-                <forceRegenerate>true</forceRegenerate>
-                <schemas>
-                    <schema>
-                        <fileset>
-                            <directory>${basedir}/src/main/resources/</directory>
-                            <includes>
-                                <include>partsorder.wsdl</include>
-                            </includes>
-                        </fileset>
-                    </schema>
-                </schemas>
-            </configuration>
-        </plugin>
-    </plugins>
- </build>
-\end{lstlisting}
-
-Durch die Generierung stehen uns die Basisdatentypen für die Service
-Interaktion zur Verfügung. Die einzelnen Operation des WebService welche
-verwendet werden wollen, müssen explizit implementiert werden. Unser
-WebService Client leitet von der Klasse \emph{WebServiceGatewaySupport}
-ab welche uns Basismethoden zur Interaktion zur Verfügung stellt. Die
-gewünschte Operation des WebService muss normalerweise definiert werden,
-da unser Service jedoch nur eine Operation zur Verfügung stellt, ist das
-hier nicht notwendig. Die Operations-Payload ist unserem Fall die
-Bestellung.
+generierten Paketen liegen sollen. Durch die Generierung stehen uns die
+Basisdatentypen für die Service Interaktion zur Verfügung. Die einzelnen
+Operation des WebService welche verwendet werden wollen, müssen explizit
+implementiert werden. Unser WebService Client leitet von der Klasse
+\emph{WebServiceGatewaySupport} ab welche uns Basismethoden zur
+Interaktion zur Verfügung stellt. Die gewünschte Operation des
+WebService muss normalerweise definiert werden, da unser Service jedoch
+nur eine Operation zur Verfügung stellt, ist das hier nicht notwendig.
+Die Operations-Payload ist unserem Fall die Bestellung.
 
 \begin{lstlisting}
  public class PartsOrderService extends WebServiceGatewaySupport {
@@ -698,37 +668,12 @@ Marshaller und die URI des WebService.
 </bean>
 \end{lstlisting}
 
-\subsubsection{Umsetzung mit Camel}
+\paragraph{Umsetzung mit Camel}
 
-Bei einer Umsetzung mit Camel kommt das Apache Framework für Open-Source Services kurz Apache C [cxf] zur Verwendung. Analog zu Spring Integration wird hier ein Maven Plugin für die Codegenerierung verwendet. 
-\begin{lstlisting}
- <build>
-    <plugins>
-        <plugin>
-            <groupId>org.apache.cxf</groupId>
-            <artifactId>cxf-codegen-plugin</artifactId>
-            <version>3.0.1</version>
-            <executions>
-                <execution>
-                    <id>generate-sources</id>
-                    <phase>generate-sources</phase>
-                    <configuration>
-                        <sourceRoot>${project.build.directory}/generated/cxf</sourceRoot>
-                        <wsdlOptions>
-                            <wsdlOption>
-                                <wsdl>${basedir}/src/main/resources/partsorder.wsdl</wsdl>
-                            </wsdlOption>
-                        </wsdlOptions>
-                    </configuration>
-                    <goals>
-                        <goal>wsdl2java</goal>
-                    </goals>
-                </execution>
-            </executions>
-        </plugin>
-    </plugins>
-  </build>
-\end{lstlisting}
+Bei einer Umsetzung mit Camel kommt das Apache Framework für Open-Source
+Services kurz Apache CXF {[}cxf{]} zur Verwendung. Analog zu Spring
+Integration wird hier ein Maven Plugin für die Codegenerierung
+verwendet.
 
 Der wesentliche Unterschied zu Spring Integration ist dass hier ein
 Java-Interface definiert wird was eine Java Beschreibung des WebServices
@@ -760,7 +705,7 @@ verwendet werden.
  </jaxws:client>
 \end{lstlisting}
 
-\subsubsection{Verwendung}
+\paragraph{Verwendung}
 
 Bei der Einbindung von Fremdsystem sollte man beachten dass diese
 womöglich nicht verfügbar sind auch wenn die eigene Applikation zur
@@ -803,26 +748,30 @@ getätigt, falls nicht bleibt das Element im Backlog enthalten.
 \section{Fazit}
 
 Die Enterprise Integration Patterns definieren einen Katalog von Mustern
-für ein erweiterbare Architektur im Sinne Event Driven Architecture
-(EDA). Damit können Systeme flexibler und skalierbar umgesetzt werden,
-was jedoch Komplexität und Mehraufwand zur Folge hat. Mit den beiden
-hier vorgestellten Frameworks Spring Integration und Camel kann man den
+für modulare Systeme und ereignisorientierte Architekturen. Damit können
+Systeme flexibler und skalierbar umgesetzt werden, was jedoch
+Komplexität und Mehraufwand zur Folge hat. Mit den beiden hier
+vorgestellten Frameworks Spring Integration und Camel kann man den
 Mehraufwand deutlich reduzieren und die Komplexität den Frameworks zum
 Teil überlassen.
 
-Beide Frameworks sind ausgereift, gut Dokumentiert und vielfältig
+Beide Frameworks sind ausgereift, gut dokumentiert und vielfältig
 erprobt.
 
-Die Investition in ein solches Framework ist ab mittlere Systemgröße zu
+Die Investition in ein solches Framework ist ab mittlerer Systemgröße zu
 empfehlen, einmal vorhanden und verstanden, werden Sie eine Vielzahl von
 Anwendungsfälle und Möglichkeiten entdecken und schätzen.
 
 \section{Referenzen}
 
-{[}eip{]}: http://www.enterpriseintegrationpatterns.com/ ``Enterprise
-Integration Patterns, Gregor Hohpe \& Bobby Woolf'' {[}camel{]}:
-http://camel.apache.org/ ``Apache Camel'' {[}si{]}:
-http://projects.spring.io/spring-integration/ ``Spring Integration''
+{[}microsvc{]}: http://martinfowler.com/articles/microservices.html
+``Microservices, Martin Fowler'' {[}eip{]}:
+http://www.enterpriseintegrationpatterns.com/ ``Enterprise Integration
+Patterns, Gregor Hohpe \& Bobby Woolf'' {[}ea{]}:
+http://en.wikipedia.org/wiki/Event-driven\_architecture ``Event-driven
+Architecture'' {[}camel{]}: http://camel.apache.org/ ``Apache Camel''
+{[}si{]}: http://projects.spring.io/spring-integration/ ``Spring
+Integration'' {[}amq{]}: http://activemq.apache.org/ ``Apache ActiveMQ''
 {[}sb{]}: http://projects.spring.io/spring-batch/ ``Spring Batch''
 {[}cxf{]}: http://cxf.apache.org/ ``Apache CXF: An Open-Source Services
 Framework''

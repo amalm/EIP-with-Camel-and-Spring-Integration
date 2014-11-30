@@ -1,46 +1,46 @@
 # Enterprise Integration Patterns in dem Praxis mit Apache Camel und Spring Integration
 
 ## Einleitung
-Der Trend weg von monolithischen in Richtung modularen Systemen ist klar erkennbar. Würde bisher der gesamte Anwendungslogik von einem System zur Verfügung gestellt, werden zunehmend fachliche Teilprozesse 
+Derzeit zeichnet sich ein Trend weg von monolithischen in Richtung modularen Systemen ab, wurde bisher der gesamte Anwendungslogik von einem System zur Verfügung gestellt, werden zunehmend fachliche Teilprozesse 
 in sowohl Architektur, Entwicklung und Betrieb geteilt betrachtet. Für den Endanwender erscheint es als ein Produkt, die "Nahtstellen" sind nicht sichtbar. Mit [Microservices] [microsvc] haben einige 
-Unternehmer wie Amazon oder Netflix für Aufmerksamkeit gesorgt.
-Modulare Systeme versprechen Vorteile vor allem in der Skalierbarkeit und Unabhängigkeit bei der Entwicklung.
+Unternehmen wie Amazon oder Netflix für Aufmerksamkeit gesorgt. Diese modularen Systeme versprechen Vorteile vor allem in der Skalierbarkeit und Unabhängigkeit bei der Entwicklung der Teilprodukte.
 
-Ein weiteres Architekturmuster für Skalierbarkeit ist die [ereignisbasierte Architektur] [ea] wo Verarbeitungsschritte asynchron und parallel erfolgen.
+Obwohl Microservices es nicht zwangsweise benötigten, setzt sich auch ein weiteres Architekturmuster für die Skalierbarkeit durch, nämlich die [ereignisbasierte Architektur] [ea] wo Verarbeitungsschritte asynchron und parallel erfolgen.
 
-Mit oder ohne modulare und/oder ereignisbasierte Architektur kommt man die Integration mit externen Systemen nicht vorbei. Synchrone Schnittstellen über WebServices als auch asynchrone Datenaustausch soll unterstützt werden.
+Mit oder ohne modularer und/oder ereignisbasierter Architektur kommt man heutzutage an der Integration mit externen Systemen nicht vorbei, es werden synchrone Schnittstellen über WebServices als auch der asynchrone Datenaustausch in diversen Produkten nicht mehr wegzudenken, z.B.: Login via Facebook, Rechnungsmeldung zum Finanzamt, ...
 
 ![Interne und externe Systeme](systems.png)
    
-Für die Interaktion zwischen inneren als externe Systeme findet man im Buch [Enterprise Integration Patterns] [eip] Lösungsmustern.
+Für die Interaktion zwischen internen als auch externen Systemem findet man im Buch [Enterprise Integration Patterns] [eip] Lösungsmustern, welche für eine Vielzahl von Problemen die durch diese Interaktion entstehen angewandt werden. 
 Diese Enterprise Integration Patterns wurden in den Frameworks [Apache Camel] [camel] und [Spring Integration] [si] umgesetzt und werden in diesem Artikel anhand eines Praxisbeispiels erklärt und durchleuchtet. 
  
-Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und typische Integrationsszenarieren lösen kann.
+Anhand des Fahrradshop, wird gezeigt wie man beide Frameworks einsetzen kann und typische Integrationsszenarien lösen kann.
 
 ## Enterprise Integration Patterns
 
-Bei den Integrationsmustern wird zuerst 4 mögliche Arten(Styles) beschrieben, File Transfer, Shared Database, Remote Procedure Invocation und Messaging.
-File Transfer ist relativ einfach zu implementieren. Es ist jedoch nicht möglich synchrone Kommunikation damit zu implementieren.
-Shared Database kann für einfache Fälle überlegt werden. Mit wachsenden Anzahl beteiligten Systeme wir die enge Kopplung über Datenbank zu Problemen führen.
-Mit Remote Procedure Invocation und Messaging stehen skalierbare Lösungen für synchrone bzw. asynchrone Kommunikation uns zur Verfügung.
- 
-Die feine Sache ist, dass der Art der Integration durch Message Channels für die fachliche Implementierung abstrahiert wird.
+Die wichtigsten und häufigsten Integrationsmustern sind folgende 4 Arten (Styles): File Transfer, Shared Database, Remote Procedure Invocation/Call (RPC) und Messaging. 
 
-Für unsere Fahrradshop werden File Transfer, Remote Procedure Invocation und Messaging eingesetzt.
+Im fiktiven Fahrradshop werden drei der vier Integrationsmuster (File Transfer, Remote Procedure Invocation und Messaging) anhand vom praxisorientierten Problemen eingesetzt.
 
-### Messaging
-Messaging wird verwendet um zuverlässig und zeitnahe Daten unter den Services auszutauschen. Bei asynchronen Schnittstellen werden die Daten kürzere oder längere Zeit zwischengespeichert.
-Damit wird das Gesamtsystem Fehlertoleranter - alle Services müssen nicht gleichzeitig zur Verfügung stehen.  
+### File Transfer und Shared Database 
+File Transfers sind relativ einfach zu implementieren, bietet aber keine Möglichkeit synchrone Kommunikation damit zu implementieren.
+
+Shared Database kann für einfache Fälle überlegt werden. Mit wachsenden Anzahl der beteiligten Systeme wird die enge Kopplung über Datenbank aber zu Problemen führen und es eignet sich außerdem oft nicht für die Kommunikation über Unternehmensgrenzen hinweg. 
+
+### Remote Procedure Invocation und Messaging
+
+Mit Remote Procedure Invocation und Messaging stehen anderseits skalierbare Lösungen für synchrone bzw. asynchrone Kommunikation zur Verfügung. Durch sogenannte Message Channels wird die Kommunikationsart abstrahiert und von der fachlichen Implementierung abgekoppelt. Das heißt das sofern sich die Anforderung ändern auch die Möglichkeit besteht auf Konfigurationsbasis den Kommunikationsmechansismus zu ändern ohne sein Produkt neu entwickeln zu müssen. 
+
+Messaging wird verwendet um zuverlässig und zeitnah Daten zwischen den Services auszutauschen. Bei asynchronen Schnittstellen werden die Daten über einen kürzeren oder längeren Zeitraum zwischengespeichert.
+Damit wird das Gesamtsystem fehlertoleranter - da nicht alle Services gleichzeitig zur Verfügung stehen müssen.
 
 ![Messaging](messaging.png)
 
-Messages werden über Channels geschickt. Der Absender und Empfänger verbinden sich mit dem Channel. Falls es ein Absender und genau einen Empfänger gibt wird ein Point-to-Point Channel verwendet.
-Bei mehreren Empfänger für einen Message bietet sich den Publish-Subscribe Channel an.
+Messages werden über Channels geschickt. Der Absender und Empfänger verbinden sich mit dem Channel. Falls es ein Absender und genau einen Empfänger gibt wird ein Point-to-Point Channel verwendet, ansonsten, bei mehreren Empfänger, für einen Message bietet sich der Publish-Subscribe Channel an.
 
-Der Empfänger kann auch zur Laufzeit entschieden werden. In unserem Beispiel sollte nach der Verarbeitung des Auftrages eine Nachricht an den Kunden verschickt werden. Je nach Kunde sollte entweder
-ein SMS oder Mail verschickt werden. Die Entscheidung ob das Message zum SmsService oder MailService weitergereicht werden sollte, trifft hier ein Content-Based Router.     
+Der Empfänger kann auch zur Laufzeit entschieden werden. In unserem Beispiel sollte nach der Verarbeitung des Auftrages eine Nachricht an den Kunden verschickt werden. Je nach Kunde sollte entweder eine SMS oder eine Mail verschickt werden. Die Entscheidung ob das Message zum SmsService oder MailService weitergereicht werden sollte, trifft hier ein Content-Based Router.
 
-![Channels](channels.png)  
+![Channels](channels.png)
 
 Nach diesem sehr gekürzten Übersicht von Enterprise Integration Patterns stellen wir jetzt die Anwendung vor.
  
@@ -57,7 +57,7 @@ Das Architekturmodell in Kürze:
 - BacklogService: bestellt auf Lager fehlende Artikeln bei externen Lieferanten die SOAP Webservices dafür zur Verfügung stellen.
 - Sms- bzw. MailService: sendet Bestellbestätigungen an den Kunden über SMS oder Mail.
 
-Die Services werden so entwickelt, dass keine enge Kopplung besteht. Sie können damit in separate Servlet-Containers betrieben werden.
+Die Services werden so entwickelt, dass keine enge Kopplung besteht. Sie können damit in separaten Laufzeitumgebungen auf unterschiedlichen Servern betrieben werden.
 
 ### Use Cases
 
@@ -80,7 +80,7 @@ Senden der Bestätigung sollte asynchron von der Verarbeitung stattfinden da die
 1. Prüfen ob bestellte Artikeln auf Lager sind:
     - falls nicht einen Bestellwunsch erzeugen
     - Andernfalls den Lagerbestand reduzieren
-1. Bestätigung senden     
+1. Bestätigung senden
     
 #### Nachschub fehlende Artikeln
 Sofern bestellte Artikeln nicht lagernd sind, werden sie mittels Webservices von externen Lieferanten nachbestellt.
@@ -439,9 +439,9 @@ Die Enterprise Integration Patterns definieren einen Katalog von Mustern für mo
 Damit können Systeme flexibler und skalierbar umgesetzt werden, was jedoch Komplexität und Mehraufwand zur Folge hat.
 Mit den beiden hier vorgestellten Frameworks Spring Integration und Camel kann man den Mehraufwand deutlich reduzieren und die Komplexität den Frameworks zum Teil überlassen.
 
-Beide Frameworks sind ausgereift, gut Dokumentiert und vielfältig erprobt.
+Beide Frameworks sind ausgereift, gut dokumentiert und vielfältig erprobt.
 
-Die Investition in ein solches Framework ist ab mittlere Systemgröße zu empfehlen, einmal vorhanden und verstanden, werden Sie eine Vielzahl von Anwendungsfälle und Möglichkeiten entdecken und schätzen. 
+Die Investition in ein solches Framework ist ab mittlerer Systemgröße zu empfehlen, einmal vorhanden und verstanden, werden Sie eine Vielzahl von Anwendungsfälle und Möglichkeiten entdecken und schätzen. 
 
 ## Referenzen
 [microsvc]: http://martinfowler.com/articles/microservices.html "Microservices, Martin Fowler"
