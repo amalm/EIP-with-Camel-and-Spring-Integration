@@ -17,10 +17,12 @@ http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/came
     </cxf:cxfEndpoint>
     
     <bean id="serviceImpl" class="eip.camel.ws.PartsOrderImpl" />
+    <bean id="tenantProcessor" class="eip.camel.ws.TenantHeaderProcessor"/>
 
     <camel:camelContext id="partsOrderCamelContext">
         <camel:route>
             <camel:from uri="cxf:bean:partsOrderEndpoint" />
+            <camel:to uri="bean:tenantProcessor" />
             <camel:to uri="bean:serviceImpl" />
         </camel:route>
     </camel:camelContext>

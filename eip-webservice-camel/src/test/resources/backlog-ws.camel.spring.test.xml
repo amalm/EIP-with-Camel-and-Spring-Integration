@@ -10,10 +10,10 @@ http://camel.apache.org/schema/spring http://camel.apache.org/schema/spring/came
 >
     <bean class="eip.camel.ws.BacklogTestServiceSchedulerImpl" />
     <import resource="classpath:/META-INF/scheduler.spring.xml" />
-    <jaxws:client id="partsOrderServiceClient" serviceName="partsOrderService" endpointName="partsOrderEndpoint" address="http://localhost:8080/eip-webservice/partsOrder" serviceClass="parts.eip.PartsOrder">
+    <jaxws:client id="partsOrderServiceClient" serviceName="partsOrderService" endpointName="partsOrderEndpoint" address="http://localhost:8081/eip-webservice/partsOrder" serviceClass="parts.eip.PartsOrder">
     </jaxws:client>
 
-    <cxf:cxfEndpoint id="partsOrderEndpoint" address="http://localhost:8080/eip-webservice/partsOrder" serviceName="partsOrderService" endpointName="partsOrderRouter" serviceClass="parts.eip.PartsOrder">
+    <cxf:cxfEndpoint id="partsOrderEndpoint" address="http://localhost:8081/eip-webservice/partsOrder" serviceName="partsOrderService" endpointName="partsOrderRouter" serviceClass="parts.eip.PartsOrder">
     </cxf:cxfEndpoint>
 
     <bean id="serviceImpl" class="eip.camel.ws.PartsOrderImpl" />
